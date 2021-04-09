@@ -1,111 +1,71 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#define MAX 9
 
-bool check_sudoku(int dim, int idx, std::vector<std::vector<int>> sudoku){
+// REF: https://yabmoons.tistory.com/88
+void DFS(int Cnt, std::vector<std::vector<int>> &MAP, std::vector<std::vector<bool>> &Col, std::vector<std::vector<bool>> &Row, std::vector<std::vector<bool>>&Square){
 
-    int region_row = dim/3;
-    int region_col = idx/3;
+    int x = Cnt / MAX; // x 좌표
+    int y = Cnt % MAX; // y 좌표
 
-    //std::cout << "THIS" <<"("<<dim<<","<<idx<<"): " << sudoku[dim][idx] << std::endl;
-
-    std::vector<int> counting_arr_box(10,0);
-    bool flag_box = true;
-    for (int j = region_row*3 ; j < region_row*3+3 ; ++j){
-        for (int k = region_col*3 ; k <region_col*3+3 ; ++k){
-            counting_arr_box[sudoku[j][k]]+=1;
+    if (Cnt == 81){
+        //PRINT SOLUTION
+        for(auto row: MAP){
+            for(auto col: row)
+                std::cout << col << " ";
+            std::cout << "\n";
         }
-    }
-    for (int i = 1 ; i < 10 ; ++i){
-        if (counting_arr_box[i] > 1){
-            flag_box = false;
-            break;
-        }
-    }
-
-    std::vector<int> counting_arr_row(10,0);
-    bool flag_row = true;
-    for (int j = 0 ; j<9 ; ++j){
-        counting_arr_row[sudoku[dim][j]]+=1;
-    }
-    for (int i = 1 ; i < 10 ; ++i){
-        if (counting_arr_row[i] > 1){
-            flag_row = false;
-            break;
-        }
-    }
-    
-    std::vector<int> counting_arr_col(10,0);
-    bool flag_col = true;
-    for (int j = 0 ; j<9 ; ++j){
-        counting_arr_col[sudoku[j][idx]]+=1;
-    }
-    for (int i = 1 ; i < 10 ; ++i){
-        if (counting_arr_col[i] > 1){
-            flag_col = false;
-            break;
-        }
-    }
-    
-    //std::cout << flag_box << " " << flag_row << " " << flag_col << "\n";
-
-    if ( flag_box && flag_row && flag_col) {
-        return true;
-    }
-    else
-        return false;
-}
-
-void sudoku_finder(int dim, std::vector<std::vector<int>>& sudoku){
-
-    if (dim ==9){
-        
+        exit(0);
         return;
     }
+
+    if (MAP[x][y] == 0){
+        for (int i =1 ; i <=9 ; ++i){
+            if ( Row[x][i] == false && Col[y][i] == false && Square[(x/3)*3 + (y/3)][i] == false){ // 중복되지 않은 숫자를 찾았으면, 
+                Row[x][i] = true;
+                Col[y][i] = true;
+                Square[(x/3)*3 + (y/3)][i] = true;
+                MAP[x][y] = i;
+                DFS(Cnt+1, MAP, Col, Row, Square);
+
+                MAP[x][y] = 0;
+                Row[x][i] = false;
+                Col[y][i] = false;
+                Square[(x/3)*3 + (y/3)][i] = false;
+            }
+            // 아무 숫자도 넣을 수 없으면 for문을 그냥 빠져나가게 되고 DFS 함수는 종료되고 그 칸은 비워지게 되겠지.!!!
+        }
+    }
+    else
+        DFS(Cnt+1, MAP, Col, Row, Square);
     
-    for(int i = 0 ; i < 9 ; ++i){
-        if (sudoku[dim][i]==0){
-            for (int j =0 ; j<9 ; ++j){
-                sudoku[dim][i] = j+1;
-                if (check_sudoku(dim, i, sudoku)){
-                    // std::cout << std::endl << "DEBUG"<<std::endl;
-                    // for(auto row: sudoku){
-                    //     for(auto col : row)
-                    //         std::cout << col << " ";
-                    //     std::cout << "\n";
-                    // }
-                    sudoku_finder(dim, sudoku);
-                    break;
-                }
-                else
-                    sudoku[dim][i]=0;
+    return;
+}
+
+
+
+int main(){
+
+    std::vector<int> res(MAX,0);
+    std::vector<std::vector<int>> MAP(MAX, res);
+    std::vector<bool> res_bool(MAX+1,0); // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    std::vector<std::vector<bool>> Row(MAX, res_bool);
+    std::vector<std::vector<bool>> Col(MAX, res_bool);
+    std::vector<std::vector<bool>> Square(MAX, res_bool);
+    
+
+    for(int i =0 ; i <MAX ; ++i){
+        for(int j =0; j < MAX ; ++j){
+            std::cin >> MAP[i][j];
+            if (MAP[i][j] != 0){
+                Row[i][MAP[i][j]] = true;
+                Col[j][MAP[i][j]] = true;
+                Square[(i/3)*3 +(j/3)][MAP[i][j]] = true;
             }
         }
     }
-    sudoku_finder(dim+1, sudoku);
-}
 
-int main(){
-    std::vector<std::vector<int>> sudoku;
-
-    for(int row =0 ; row<9 ; ++row){
-        std::vector<int> arr;
-        for(int col =0  ; col < 9 ; ++col){
-            int n;
-            std::cin >> n;
-            arr.push_back(n);
-        }
-        sudoku.push_back(arr);
-    }
-
-    sudoku_finder(0,sudoku);
-    // Print Answer
-    std::cout << std::endl << "ANSWER"<<std::endl;
-    for(auto row: sudoku){
-        for(auto col : row)
-            std::cout << col << " ";
-        std::cout << "\n";
-    }
+    DFS(0, MAP, Col, Row, Square);
 
     return 0;
 }
