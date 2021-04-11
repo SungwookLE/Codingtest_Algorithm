@@ -1,13 +1,10 @@
 #include <iostream>
 #include <vector>
 #define MAX 9
-
 // REF: https://yabmoons.tistory.com/88
 void DFS(int Cnt, std::vector<std::vector<int>> &MAP, std::vector<std::vector<bool>> &Col, std::vector<std::vector<bool>> &Row, std::vector<std::vector<bool>>&Square){
-
     int x = Cnt / MAX; // x 좌표
     int y = Cnt % MAX; // y 좌표
-
     if (Cnt == 81){
         //PRINT SOLUTION
         for(auto row: MAP){
@@ -18,7 +15,6 @@ void DFS(int Cnt, std::vector<std::vector<int>> &MAP, std::vector<std::vector<bo
         exit(0);
         return;
     }
-
     if (MAP[x][y] == 0){
         for (int i =1 ; i <=9 ; ++i){
             if ( Row[x][i] == false && Col[y][i] == false && Square[(x/3)*3 + (y/3)][i] == false){ // 중복되지 않은 숫자를 찾았으면, 
@@ -27,7 +23,6 @@ void DFS(int Cnt, std::vector<std::vector<int>> &MAP, std::vector<std::vector<bo
                 Square[(x/3)*3 + (y/3)][i] = true;
                 MAP[x][y] = i;
                 DFS(Cnt+1, MAP, Col, Row, Square);
-
                 MAP[x][y] = 0;
                 Row[x][i] = false;
                 Col[y][i] = false;
@@ -38,22 +33,15 @@ void DFS(int Cnt, std::vector<std::vector<int>> &MAP, std::vector<std::vector<bo
     }
     else
         DFS(Cnt+1, MAP, Col, Row, Square);
-    
     return;
 }
-
-
-
 int main(){
-
     std::vector<int> res(MAX,0);
     std::vector<std::vector<int>> MAP(MAX, res);
     std::vector<bool> res_bool(MAX+1,0); // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
     std::vector<std::vector<bool>> Row(MAX, res_bool);
     std::vector<std::vector<bool>> Col(MAX, res_bool);
     std::vector<std::vector<bool>> Square(MAX, res_bool);
-    
-
     for(int i =0 ; i <MAX ; ++i){
         for(int j =0; j < MAX ; ++j){
             std::cin >> MAP[i][j];
@@ -64,8 +52,6 @@ int main(){
             }
         }
     }
-
     DFS(0, MAP, Col, Row, Square);
-
     return 0;
 }
