@@ -1,29 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 //https://www.acmicpc.net/problem/14889
-
-void DFS(std::vector<int> &arr, int level, int depth, std::vector<int> &permutation, std::vector<int> visited, std::vector<std::vector<int>>& ans, std::vector<int>& remain){
-    if (level == depth){
-        std::vector<int> res;
-        for(int i =0; i < remain.size(); ++i){
-            if (remain[i] == 0)
-                res.push_back(arr[i]);
-        }
-        res.insert(res.begin(), permutation.begin(), permutation.end());    
-        ans.push_back(res);
-        return;
-    }    
-    for (int i = 0 ; i < arr.size() ; ++i){
-        if(visited[i] == 0){
-            permutation[level] = arr[i];
-            visited[i] = 1;
-            remain[i] = 1;
-            DFS(arr, level+1, depth, permutation, visited, ans, remain);
-            remain[i]= 0;
-        }
-    }
-    return;
-}
+//백트래킹 : DFS 로 하면되는데 STL 활용해서 해봄 (4/12)
 
 int main(){
     std::ios_base::sync_with_stdio(false);
@@ -32,6 +11,7 @@ int main(){
 
     int n ; 
     std::cin >> n;
+
     std::vector<int> arr(n);
     std::vector<std::vector<int>> score_table(n,arr);
     std::vector<int> members;
@@ -43,20 +23,29 @@ int main(){
         }
     }
 
-    int divide = n /2 ;
-    std::vector<int> permutation(divide);
-    std::vector<int> visited(members.size());
-    std::vector<int> remain(members.size());
-    std::vector<std::vector<int>> ans;
-
-    DFS(members, 0, divide, permutation, visited, ans, remain);
-
-    int min_diff =100000000;
+    int divide = n/2;
+    int min_diff = 1000000000;
     int cur_diff;
+    std::vector<int> prev(n,0);
 
-    for(int i =0 ; i < ans.size() ; ++i){
-            members = ans[i];
-
+    do{
+        auto compare =[divide,members,prev](){    
+            int cnt  = 0;
+            for (int i = 0; i < divide ; ++i){
+                for (int j = 0 ; j <divide ; ++j){
+                    if (members[i] == prev[j]){
+                        cnt+=1;
+                        break;
+                    }
+                }
+            }
+            if (cnt == divide)
+                return false;
+            else
+                return true;
+        };
+        
+        if (compare()){
             // std::cout <<"\n";
             // for(auto member : members)
             //     std::cout << member << " ";
@@ -75,8 +64,6 @@ int main(){
                         sum_link+=score_table[members[j]][members[k]];
                 }
             }
-            //std::cout << "START: " <<sum_start <<",   LINK:" <<sum_link << "\n";
-
             cur_diff = abs(sum_start- sum_link);
             if (cur_diff== 0){
                 std::cout << 0 << "\n";
@@ -86,8 +73,11 @@ int main(){
                 if (min_diff > cur_diff)
                     min_diff = cur_diff;
             }
-    }
+            prev = members;
 
+
+        }
+    }while( std::next_permutation(members.begin(),members.end()) );
     std::cout << min_diff << "\n";
     return 0;
 }
