@@ -11,24 +11,24 @@ class bitonic{
             N=ea;
         }
         //증가수열
-        int solve_up(int cnt){
+        int solver_up(int cnt){
             if(DP_up[cnt] !=0)
                 return DP_up[cnt];
             DP_up[cnt] = 1;
             for(int i = cnt-1; i >= 1 ; i --){
                 if ( arr[i] < arr[cnt])
-                    DP_up[cnt] = std::max(DP_up[cnt], solve_up(i)+1);
+                    DP_up[cnt] = std::max(DP_up[cnt], bitonic::solver_up(i)+1);
             }
             return DP_up[cnt];
         }
         //감소수열
-        int solve_down(int cnt){
+        int solver_down(int cnt){
             if(DP_down[cnt] != 0)
                 return DP_down[cnt];
             DP_down[cnt] = 1;
             for (int i = cnt+1; i <= N ; i++){
                 if (arr[i] < arr[cnt])
-                    DP_down[cnt]= std::max(DP_down[cnt], solve_down(i)+1);
+                    DP_down[cnt]= std::max(DP_down[cnt], bitonic::solver_down(i)+1);
             }
             return DP_down[cnt];
         }
@@ -42,19 +42,16 @@ class bitonic{
 int main(){
     int N;
     std::cin >> N;
-
     std::vector<int> arr(N+1,0);
     for(int i =1 ; i <= N ; ++i)
         std::cin >> arr[i];
 
     bitonic bitonic_solver(N,arr);
-
     for(int i = N ; i >=1 ; --i)
-        bitonic_solver.solve_up(i);
+        bitonic_solver.solver_up(i);
 
-    
     for(int i = 0 ; i <= N ; ++i)
-        bitonic_solver.solve_down(i);
+        bitonic_solver.solver_down(i);
 
     std::cout << "DEBUG:" <<std::endl;
     std::cout << "UP: " ;
@@ -67,7 +64,6 @@ int main(){
 
     int max_val = 0;
     for(int i = 1; i <= N ; ++i){
-
         if ( max_val < (bitonic_solver.DP_up[i] + bitonic_solver.DP_down[i]) )
             max_val = (bitonic_solver.DP_up[i] + bitonic_solver.DP_down[i]);
     }
