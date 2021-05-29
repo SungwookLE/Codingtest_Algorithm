@@ -11,16 +11,8 @@ class solver_LIS{ // Longest Increasing Subsequence
                 std::cin >> array[i] ;
             }
         }
-
-        void debugger_DP(){
-            std::cout << "DEBUG(array): \n";
-            for(auto element : DP)
-                std::cout << element << " ";
-            std::cout << std::endl;
-        }
-
-        void solver(){
-
+        int solver(){
+            int answer=0;
             int final_max =0;
             for (int i = 0 ; i < N ; ++i){
                 int temp_max=0;
@@ -34,10 +26,15 @@ class solver_LIS{ // Longest Increasing Subsequence
                 final_max = std::max(final_max, DP[i]);
             }
             answer = final_max;
+
+            return answer;
         }
-
-        int answer=0;
-
+        void debugger_DP(){
+            std::cout << "DEBUG::Print DP(array): \n";
+            for(auto element : DP)
+                std::cout << element << " ";
+            std::cout << std::endl;
+        }
     private:
         int N;
         std::vector<int> array;
@@ -50,13 +47,10 @@ int main(){
     std::cin >> N;
 
     solver_LIS solver(N);
-    solver.solver();
+    int answer = solver.solver();
     solver.debugger_DP();
     
-    std::cout<<"LONGEST INCREASING SUBSEQUENCE(n): \n" <<solver.answer<< std::endl;
-
-
-
+    std::cout<<"LONGEST INCREASING SUBSEQUENCE(n): \n" <<answer<< std::endl;
 
     return 0;
 }
