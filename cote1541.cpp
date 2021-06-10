@@ -11,72 +11,86 @@ class solver_1541{
         std::cout << line <<std::endl;
     }
 
-    void operation_print(){
+    int solver(){
 
-        bool minus_start_flag = false;
-        bool minus_end_flag = false;
+        
 
-        for(int i =0 ; i < line.length() ; ++i){
-            if (minus_start_flag == true){
-                line.insert(i, "(");
-                minus_start_flag = false;
-                minus_end_flag = true;
-            }
-
-            if(minus_end_flag ==true){
-
-                if (line[i] == '-' ){
-                    line.insert(i,")");
-                    minus_end_flag =false;
-
-                }
-                else if ( i == (line.length()-1)){
-                    line.append(")");
-                    minus_end_flag =false;
-                 }
-            }
-            
-            if ( line[i] == '-' ){
-                minus_start_flag = true;
-            }
-        }
-    }
-
-
-    int calculator(){
         int answer =0;
 
+        bool minus = false;
+        signV.push_back(1);
+
+        int num =0;
 
 
+        for(int i = 0 ; i < line.length(); ++i){
 
+            if (line[i] == '+' || line[i] == '-'){
+                if (line[i] == '+')
+                    signV.push_back(1);
+                else
+                    signV.push_back(-1);
+                
+                numV.push_back(num);
+                num = 0;
+
+            }
+            else{
+                num = num*10 + int(line[i]-'0');
+            }
+        }
+        numV.push_back(num);
+
+        for(int i =0; i < numV.size(); ++i){
+            if (signV[i] == -1)
+                minus = true;
+            
+            if (minus == true)
+                answer -= numV[i];
+            else
+                answer += numV[i];
+        }
+
+        // 아 '-'가 한번이라도 뜨면 그 뒤는 무조건 다 음수로 처리해버리면 최소값이 뜨겠구나!!
         return answer;
     }
 
 
-    void print_answer(){
-        std::cout << answer << std::endl;
+    void debug(){
+        for(int a =0 ; a<numV.size() ; ++a)
+            std::cout << numV[a] << " ";
+        std::cout << std::endl;
+
+        for(int b : signV)
+            std::cout << b << " ";
+        std::cout << std::endl;
+        
     }
 
+
     private:
+    std::vector<int> numV; // +: 1, -: -1
+    std::vector<int> signV;
     std::string line;
     int answer =0;
 
 };
 
-
-
-
 int main(){
     solver_1541 solver;
     solver.insert_input();
-    solver.operation_print();
-    solver.print_insert();
+    int answer = solver.solver();
+    //solver.debug();
 
+    std::cout << answer << std::endl;
     return 0;
 }
 
 
 /*
+>> REF: https://ssungkang.tistory.com/entry/C-BAEKJOON-1541-%EC%9E%83%EC%96%B4%EB%B2%84%EB%A6%B0-%EA%B4%84%ED%98%B8
+
+
 문제>>
 세준이는 양수와 +, -, 그리고 괄호를 가지고 식을 만들었다. 그리고 나서 세준이는 괄호를 모두 지웠다.
 그리고 나서 세준이는 괄호를 적절히 쳐서 이 식의 값을 최소로 만들려고 한다.
