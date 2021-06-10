@@ -11,7 +11,7 @@ class solver_1541{
         std::cout << line <<std::endl;
     }
 
-    void solver(){
+    void operation_print(){
 
         bool minus_start_flag = false;
         bool minus_end_flag = false;
@@ -39,9 +39,19 @@ class solver_1541{
             if ( line[i] == '-' ){
                 minus_start_flag = true;
             }
-
         }
     }
+
+
+    int calculator(){
+        int answer =0;
+
+
+
+
+        return answer;
+    }
+
 
     void print_answer(){
         std::cout << answer << std::endl;
@@ -59,7 +69,7 @@ class solver_1541{
 int main(){
     solver_1541 solver;
     solver.insert_input();
-    solver.solver();
+    solver.operation_print();
     solver.print_insert();
 
     return 0;
