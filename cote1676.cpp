@@ -2,44 +2,39 @@
 #include <vector>
 
 class solver_1676{
-
     public:
-    void insert_num(){
-        std::cin >> N;
-    }
-
-    void factorial(){
-        for(int i = 1 ; i <= N ; ++i)
-            ans *= i;
-        std::string ans_str;
-        ans_str = std::to_string(ans);
-
-        bool stop_flag = false;
-        int print_ans = 0;
-        for(int i=ans_str.size()-1 ; i >= 0 ; --i){
-            if (ans_str[i] != '0'){
-                stop_flag = true;
-                break;
+    void solver(int n_in){
+        // 처음에 Recursive 로 구성햇는데, 이건 메모리를 많이 잡아먹기 떄문에 메모리 초과 에러가 났다. 따라서 그냥 for문으로 잡고 돌려버림
+        // REF: https://ksj14.tistory.com/entry/BackJoon1676-%ED%8C%A9%ED%86%A0%EB%A6%AC%EC%96%BC-0%EC%9D%98-%EA%B0%9C%EC%88%98
+        // 첫번쨰 트라이는 factoiral을 직접 단계마다 계산하고, 끝에 0의 개수를 세서 숫자를 줄여주는 방식으로 오버플로우를 피해보고자 햇는데,
+        // 그런경우 while문을 타다보니까 시간초과 에러가 나더라!
+        for(int i = 1 ; i <=n_in ; ++i){
+            int temp = i;
+            while ( temp % 2 == 0){
+                cnt2 += 1;
+                temp /= 2;
             }
-            else{
-                print_ans+=1;
+            while ( temp % 5 == 0){
+                cnt5 += 1;
+                temp /= 5;
             }
         }
-        std::cout << print_ans << std::endl;
+    }
+
+    void print_ans(){
+        std::cout << std::min(cnt2, cnt5) << std::endl;
     }
 
     private:
-    int N;
-    int ans=1;
+    int cnt2=0, cnt5=0;
+    
 };
 
-
 int main(){
-
     solver_1676 solver;
-    solver.insert_num();
-    solver.factorial();
-
-
+    int N;
+    std::cin >> N;
+    solver.solver(N);
+    solver.print_ans();
     return 0;
 }
