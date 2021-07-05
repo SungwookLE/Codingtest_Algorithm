@@ -27,6 +27,11 @@ public:
         arr[idx] = -1;
     }
 
+    ~solver_11866(){
+        delete [] arr;
+        //std::cout << "CLEAR" << std::endl;
+    }
+
 private:
     int *arr;
     int N, K;
