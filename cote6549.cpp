@@ -1,5 +1,12 @@
 #include <iostream>
 #include <vector>
+// 세그먼트 트리를 이용한 문제
+
+// 내가 원하는 답을 가지고 있는 트리를 구하고
+// 트리에서 액션을 하는 쿼리 함수를 짠다음에
+// 솔버에서 쿼리를 호출해서 O(logN) 의 복잡도로 함수를 짜는 것
+
+// '21.7/24
 
 class solver_6549{
 
@@ -51,12 +58,11 @@ class solver_6549{
         if (left > right) return;
 
         int index = query(0, arr.size()-1, 1, left, right);
+        ans = std::max(ans, arr[index] * (right-left+1) );
 
-        ans = std::max(ans, arr[index] * (right-left+1));
-        //asdasda
-
-
-
+        //분할정복
+        solve(left, index-1);
+        solve(index+1, right);
     }
 
     void show_arr(){
@@ -75,10 +81,11 @@ class solver_6549{
         }
     }
 
+    long long ans=0;
+
     private:
     std::vector<long long> arr;
     std::vector<int> tree;
-    int ans;
 
 };
 
@@ -96,9 +103,10 @@ int main()
             std::cin >> arr[i];
         
         solver_6549 solver(arr);
-        solver.show_arr();
         solver.init(0, arr.size()-1, 1);
-        solver.show_tree();
+
+        solver.solve(0, arr.size()-1);
+        std::cout << solver.ans << std::endl;
 
     }
     return 0;
