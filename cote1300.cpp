@@ -1,7 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
+// 의외로 이분 탐색으로 풀 수 있는 놀라운 문제 1
+// ref: https://huiung.tistory.com/90
 
 class solver_1300{
     public:
