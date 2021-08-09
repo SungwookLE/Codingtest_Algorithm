@@ -13,7 +13,6 @@ class solver_11279{
             std::cin >> x;
             if (x==0){
                 if (arr.empty())
-                    // ans.push_back(0);
                     std::cout << "0\n"; 
                 else{
                     std::cout << arr.top() << "\n";
@@ -23,21 +22,16 @@ class solver_11279{
             else
                 arr.push(x);
         }
-
-        // for(auto a : ans)
-            // std::cout << a << std::endl;
     }
 
 
     private:
         int N;
         std::priority_queue<int> arr;
-        std::vector<int> ans;
 };
 
 int main(){
-    std::cin.tie(NULL);
-    std::ios_base::sync_with_stdio(false);
+
 
     solver_11279 solver;
     solver.solver();
