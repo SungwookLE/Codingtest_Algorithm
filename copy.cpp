@@ -7,25 +7,44 @@ typedef struct{
     int c;
 }st_int;
 
+void heap_struct(st_int *dest){
+    st_int *dummy = (st_int*)malloc(sizeof(st_int));
 
+    std::cout << std::endl << dest  << " " << dummy << std::endl;
+    dummy->a = 4;
+    dummy->b = 8;
+    dummy->c = 12;
+
+    std::memcpy(dest, dummy, sizeof(st_int));
+    free(dummy);
+}
+
+void heap_array(int *dest){
+    //dest = (int*)malloc(sizeof(int)*5);
+    std::cout <<std::endl << dest  << std::endl;
+
+    for(int i= 0 ; i < 5 ; ++i)
+        dest[i] = i+1;
+}
 
 int main(){
-    st_int src_data;
-    st_int *des_data = new st_int;
-
-    src_data.a = 4;
-    src_data.b=8;
-    src_data.c=12;
+    st_int *src_data  = (st_int*)malloc(sizeof(st_int));
+    int* src = (int*)malloc(sizeof(int)*5);
     
-    std::memcpy(des_data, &src_data, sizeof(st_int)); //deep copy
+    heap_struct(src_data);
 
+    std::cout <<"MAIN(struct):\n";
+    std::cout << src_data << std::endl<< std::endl;
+    std::cout << src_data->a << std::endl;
+    std::cout << src_data->b << std::endl;
+    std::cout << src_data->c << std::endl;
 
-    std::cout << "SRC: " << &src_data << ", DES: "<< &des_data << std::endl;
+    heap_array(src);
+    std::cout <<"MAIN(array):\n";
+    std::cout <<  src << std::endl << std::endl;
 
-    std::cout << des_data->a << std::endl;
-    std::cout << des_data->b << std::endl;
-    std::cout << des_data->c << std::endl;
-
+    for(int i =0 ; i < 5 ; ++i)
+        std::cout << src[i] << std::endl;
 
 
     return 0;
