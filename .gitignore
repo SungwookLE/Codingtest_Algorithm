@@ -1,0 +1,4 @@
+# ignore all files in the build/ & Eigen/ directory
+
+build/
+Eigen/
