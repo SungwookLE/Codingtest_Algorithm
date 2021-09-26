@@ -16,6 +16,8 @@ class garage_game{
             handle.insert(handle.begin(), tetris.back());
             tetris.pop_back();
         }
+
+        checker.resize(0, std::vector<int>(N,0));
     }
 
     void print_all(){
@@ -41,75 +43,54 @@ class garage_game{
 
         while (iter<3){
             erase_tetris();
-            print_handle();
             iter++;
         }
     }
 
     void erase_tetris(){
 
-        std::vector<bool> horizontal_checker, vertical_checker;
+        
 
-        // 가로
-        for(int row =0 ; row < N ; ++row){
-            int temp  = handle[row][0];
-            bool horizontal = true;
-            for(int col = 1 ; col < N ; ++col){
-                if(temp != handle[row][col]){
-                    horizontal = false;
+    }
+
+    void check(){
+
+        for(int row = 0 ; row < N; ++row){
+            for(int col = 0 ; col < N ; ++col){
+
+
+                int temp = handle[row][col];
+                int hori = true, vert = true;
+
+                for(int i = 0; i < N ; ++i){
+                    if (temp != handle[row][i])
+                        hori = false;
+
+                    if (temp != handle[i][col])
+                        vert = false;
                 }
-            }
-            horizontal_checker.push_back(horizontal);
-        }
 
-        // 세로
-        for(int col = 0 ; col < N ; ++col){
-            int temp = handle[0][col];
-            bool vertical = true;
-            for(int row =0 ; row < N ; ++row){
-                if (temp != handle[row][col]){
-                    vertical = false;
-                }
-            }
-            vertical_checker.push_back(vertical);
-        }
+                if (hori==true)
+                    checker[row][col] = 1;
 
+                if (vert == true)
+                    checker[row][col] = 2;
 
-        for(int row = 0 ; row<horizontal_checker.size() ; ++row){
-            if (horizontal_checker[row] == true){
-                handle.erase(handle.begin()+row);
-                score +=N;
+                if (hori && vert)
+                    checker[row][col] = 3;   
 
-                auto temp = tetris.back();
-                tetris.pop_back();
-                handle.insert(handle.begin(), temp);
+            // 이거 어떻게 체크해나갈수 있지? 백트래킹 쓰면 될거 같은데... (9/25)
+            // https://softeer.ai/practice/info.do?eventIdx=1&psProblemId=540
+
             }
         }
-
-
-        for(int col = 0 ; col < vertical_checker.size(); ++col){
-            if(vertical_checker[col] == true){
-
-                score += N;
-                for(int i =1 ; i <=N ; ++i){
-
-                    print_all();
-                    int temp = tetris[tetris.size()-i][col];
-                    handle[handle.size()-i][col]=temp;
-
-                    if ( (tetris.size()-(i+N)) >= 0 )
-                        tetris[tetris.size()-i][col] = tetris[tetris.size()-(i+N)][col];
-                }
-            }
-        }
-
 
     }
 
     private:
     int N, iter=0, score=0;
     std::vector<std::vector<int>> tetris;
-    std::vector<std::vector<int>> handle;
+    std::vector<std::vector<int>> handle, checker;
 
 
 };
