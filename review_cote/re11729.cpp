@@ -3,8 +3,9 @@
 
 // recursion
 // hanoi tower
-// <== 좀 더 보다 잘것 ,, rvalue ref 까먹었네 요긴하게 쓸 수 있는건데 이거
-// rvalue를 참조로 걸어버릴 수 있다. 변수 없이 근데 언제 효과적이엇더라?? (9/26)
+// https://shoark7.github.io/programming/algorithm/tower-of-hanoi
+// 하노이 = 재귀, 재귀-> iteration마다 반복되는 구조를 파악해라..
+// 하노이는 원반 두개 그려서 파악해보면 일반식은 유도가 되긴 되네 (9/27)
 
 
 class prob_11729{
@@ -13,28 +14,25 @@ public:
     prob_11729(){
         std::cin >> N;
     }
-
     void solver(){
-
-        recursion(N, '1','2','3', ans);
-        
+        hanoi(N, '1','2','3', ans);
         std::cout << ans << std::endl;
+
         for (auto row: log){
             for(auto col : row)
                 std::cout << col << " ";
             std::cout << std::endl;
         }
-
     }
 
-    void recursion(int n, char start, char via, char to, int& count){
+    void hanoi(int n, char start, char via, char to, int& count){
         if (n==1){
             log.push_back({start, to});
         }
         else{
-            recursion(n-1, start, to, via, count);
+            hanoi(n-1, start, to, via, count);
             log.push_back({start, to});
-            recursion(n-1, via, start, to, count);
+            hanoi(n-1, via, start, to, count);
         }
         count+=1;
     }
@@ -45,8 +43,6 @@ private:
     int ans=0;
 
 };
-
-
 
 int main(){
     prob_11729 solver;
