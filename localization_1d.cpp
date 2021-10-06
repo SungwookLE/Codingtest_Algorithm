@@ -59,7 +59,7 @@ class localization_1D{
      * @brief 
      * define landmarks
      */
-    std::vector<double> landmark_positions = {5, 10, 12, 20};
+    std::vector<double> landmark_positions = {3, 9, 14, 23};
 
     /**
      * @brief 
@@ -89,7 +89,7 @@ class localization_1D{
         for(int i = 0; i < landmark_positions.size() ; ++i){
             for(int j =1 ; j <= position_stdev; ++j){
                 
-                priors[int(landmark_positions[i]+j)%map_size] +=1.0/norm_term;
+                priors[int(landmark_positions[i]+j+map_size)%map_size] +=1.0/norm_term;
                 priors[int(-j+landmark_positions[i]+map_size)%map_size] +=1.0/norm_term;
 
             }
@@ -104,13 +104,13 @@ class localization_1D{
      * calculates prob of being at an estimated position at time t
      */
     double motion_model(double pseudo_position, double movement){
-        double position_prob =0;
+        double position_prob =0.0;
         for(int i =0 ; i < map_size; ++i){
 
-            double distance = pseudo_position + movement -i;
-            double pred_prob = helper::normpdf(distance, 0, control_stdev);
+            double distance = pseudo_position  -double(i)- movement;
+            double transition_prob = helper::normpdf(distance, 0.0, control_stdev);
 
-            position_prob += pred_prob * priors[i];
+            position_prob += transition_prob * priors[i];
         }
 
         return position_prob;
@@ -152,7 +152,7 @@ class localization_1D{
                 x = observations[i] - min_dist;
             }
 
-            double prob_single =helper::normpdf(x, 0, observation_stdev);
+            double prob_single =helper::normpdf(x, 0.0, observation_stdev);
             prob*=prob_single;
         }
 
@@ -169,7 +169,7 @@ int main(){
     localization_1D bayes(map_size);
     double movement_per_timestep = 1.0;
     
-    // std::vector<double> landmark_positions = {5, 10, 12, 20};
+    // std::vector<double> landmark_positions = {3, 9, 14, 23};
 
     std::vector<std::vector<double>> sensor_obs = {{1,7,12,21}, {0,6,11,20}, {5,10,19},
                                      {4,9,18}, {3,8,17}, {2,7,16}, {1,6,15}, 
@@ -177,9 +177,10 @@ int main(){
                                      {0,9}, {8}, {7}, {6}, {5}, {4}, {3}, {2},
                                      {1}, {0}, {}, {}, {}};
 
+
     std::vector<double> obs_data;
     for(auto obs : sensor_obs){
-        if ( !obs.empty())
+        if ( !obs.empty() )
             obs_data = obs; 
         else
             obs_data = {double(map_size)};
@@ -188,11 +189,9 @@ int main(){
    
         for(int i = 0 ; i < map_size; ++i){
             double pseudo_position = double(i);
-
             double motion_prob = bayes.motion_model(pseudo_position, movement);
-
+            
             std::vector<double> pseudo_ranges = bayes.pseudo_range_estimator(pseudo_position);
-
             double observation_prob = bayes.observation_model(obs_data, pseudo_ranges);
 
             bayes.posteriors[i] = motion_prob*observation_prob;
@@ -200,7 +199,7 @@ int main(){
         }
         bayes.posteriors = helper::normalize_vector(bayes.posteriors);
         bayes.priors = bayes.posteriors;
-
+        
             
         // print posteriors vectors to stdout
         for (int p = 0; p < bayes.posteriors.size(); ++p) {
