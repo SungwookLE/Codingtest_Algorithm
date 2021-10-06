@@ -110,6 +110,7 @@ class localization_1D{
             double distance = pseudo_position  -double(i)- movement;
             double transition_prob = helper::normpdf(distance, 0.0, control_stdev);
 
+            // 전확률 법칙에 의거하여 다 더해주는 것
             position_prob += transition_prob * priors[i];
         }
 
@@ -153,6 +154,7 @@ class localization_1D{
             }
 
             double prob_single =helper::normpdf(x, 0.0, observation_stdev);
+            // 업데이트 곱해주는 단계: main문에서 모델 결과와도 곱하는 과정이 있다. 
             prob*=prob_single;
         }
 
@@ -194,6 +196,8 @@ int main(){
             std::vector<double> pseudo_ranges = bayes.pseudo_range_estimator(pseudo_position);
             double observation_prob = bayes.observation_model(obs_data, pseudo_ranges);
 
+
+            // 업데이트 곱해주는 단계: 최종적인 posterior고, 아직 노말라이제이션 전단계
             bayes.posteriors[i] = motion_prob*observation_prob;
 
         }
