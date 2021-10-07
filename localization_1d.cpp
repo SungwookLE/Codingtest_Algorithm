@@ -29,7 +29,6 @@ class helper{
 		for (unsigned int i = 0; i < inputVector.size(); ++i) {
 			outputVector[i] = inputVector[i]/sum;
 		}
-
 		//return normalized vector:
 		return outputVector;
 	}
@@ -82,20 +81,15 @@ class localization_1D{
      * 랜드 마크 옆에 있을 확률이 높다는 가정 하에 아래와 같이 distribution 한건데, 꼭 이렇게 할 필요는 없다.
      */
     void initialize_priors(){
-
         // set each landmark position +/- 1 
         double norm_term = landmark_positions.size() * (position_stdev*2+1);
-        
         for(int i = 0; i < landmark_positions.size() ; ++i){
             for(int j =1 ; j <= position_stdev; ++j){
-                
                 priors[int(landmark_positions[i]+j+map_size)%map_size] +=1.0/norm_term;
                 priors[int(-j+landmark_positions[i]+map_size)%map_size] +=1.0/norm_term;
-
             }
             priors[landmark_positions[i]] += 1.0/ norm_term;
         }
-
     }
 
     /**
@@ -106,18 +100,14 @@ class localization_1D{
     double motion_model(double pseudo_position, double movement){
         double position_prob =0.0;
         for(int i =0 ; i < map_size; ++i){
-
             double distance = pseudo_position  -double(i)- movement;
             double transition_prob = helper::normpdf(distance, 0.0, control_stdev);
-
             // 전확률 법칙에 의거하여 다 더해주는 것
             position_prob += transition_prob * priors[i];
         }
-
         return position_prob;
     }
 
-    
     /**
      * @brief `update`
      * declare pseudo_range_estimator function
@@ -139,6 +129,7 @@ class localization_1D{
     /**
      * @brief `update`
      * get observation probability
+     * matching from observation and pseudo range to landmark
      */
     double observation_model(std::vector<double> observations, std::vector<double> pseudo_ranges){
         
@@ -160,9 +151,6 @@ class localization_1D{
 
         return prob;        
     }
-
-    private:
-
 };
 
 int main(){
@@ -171,15 +159,11 @@ int main(){
     localization_1D bayes(map_size);
     double movement_per_timestep = 1.0;
     
-    // std::vector<double> landmark_positions = {3, 9, 14, 23};
-
     std::vector<std::vector<double>> sensor_obs = {{1,7,12,21}, {0,6,11,20}, {5,10,19},
                                      {4,9,18}, {3,8,17}, {2,7,16}, {1,6,15}, 
                                      {0,5,14}, {4,13}, {3,12}, {2,11}, {1,10},
                                      {0,9}, {8}, {7}, {6}, {5}, {4}, {3}, {2},
                                      {1}, {0}, {}, {}, {}};
-
-
     std::vector<double> obs_data;
     for(auto obs : sensor_obs){
         if ( !obs.empty() )
@@ -187,8 +171,8 @@ int main(){
         else
             obs_data = {double(map_size)};
 
-        double movement = movement_per_timestep;
-   
+
+        double movement = bayes.movement_per_timestep;
         for(int i = 0 ; i < map_size; ++i){
             double pseudo_position = double(i);
             double motion_prob = bayes.motion_model(pseudo_position, movement);
@@ -196,25 +180,17 @@ int main(){
             std::vector<double> pseudo_ranges = bayes.pseudo_range_estimator(pseudo_position);
             double observation_prob = bayes.observation_model(obs_data, pseudo_ranges);
 
-
             // 업데이트 곱해주는 단계: 최종적인 posterior고, 아직 노말라이제이션 전단계
             bayes.posteriors[i] = motion_prob*observation_prob;
-
         }
         bayes.posteriors = helper::normalize_vector(bayes.posteriors);
         bayes.priors = bayes.posteriors;
         
-            
         // print posteriors vectors to stdout
         for (int p = 0; p < bayes.posteriors.size(); ++p) {
           std::cout << bayes.posteriors[p] << std::endl;  
         }
         std::cout << std::endl;
-   
     }
-   
     return 0;
 }
-
-
-
