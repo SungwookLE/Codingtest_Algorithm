@@ -130,6 +130,8 @@ class localization_1D{
      * @brief `update`
      * get observation probability
      * matching from observation and pseudo range to landmark
+     * @param observation sensor measurement
+     * @param pseudo_ranges ranges between pseudo point to landmark
      */
     double observation_model(std::vector<double> observations, std::vector<double> pseudo_ranges){
         

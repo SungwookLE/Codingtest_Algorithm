@@ -30,7 +30,7 @@ class A_Star{
 
             while (found != true && resign != true){
                 std::sort(opens_cand.begin(), opens_cand.end(), [](std::vector<int> a , std::vector<int> b){
-                    if ( a[0] < b[0])
+                    if ( a[0] < b[0]) //오타다 정렬 거꾸로 했다;; (10/8)
                         return true;
                     else if( a[0] == b[0]){
                         if ( a[1] < b[1])
