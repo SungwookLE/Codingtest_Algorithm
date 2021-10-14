@@ -7,6 +7,7 @@
 using namespace std;
 
 int getGcd(int s, int b){
+    //최대공약수
     int tmp =0;
     
     while (s!=0){
