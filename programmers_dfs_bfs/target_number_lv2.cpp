@@ -4,6 +4,8 @@
 
 using namespace std;
 
+// 분할 탐색이라고 해서 풀었었는데, 이것도 BFS의 일종이겠구나.
+
 
 void solver(int iter, int n, int ans, vector<int> numbers,int target, int& answer){
     
@@ -21,8 +23,6 @@ void solver(int iter, int n, int ans, vector<int> numbers,int target, int& answe
         solver(iter+1, n , ans, numbers, target, answer);
         
     }
-    
-    
     
 }
 
