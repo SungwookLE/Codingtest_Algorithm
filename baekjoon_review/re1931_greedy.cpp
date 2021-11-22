@@ -15,7 +15,7 @@ class prob_1931{
             for(int i =0; i < 2; ++i)
                 std::cin>> time[i];
 
-            times.push_back(time);
+            times.push_back(time);t
         }
         
         std::sort(times.begin(), times.end(), [](auto a , auto b){
@@ -25,19 +25,19 @@ class prob_1931{
                 if ( a[0] < b[0])
                     return true;
                 else
-                    return false;
+                    return false;tttt
             }
             else
                 return false;
         });
-
+uuuasdasd
 
         // std::cout << std::endl;
         // for (auto row : times){
         //     for(auto ele : row)
         //         std::cout << ele << " ";
         //     std::cout << std::endl;
-        // }
+        // }ff
 
     }
 

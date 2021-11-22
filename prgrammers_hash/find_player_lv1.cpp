@@ -9,12 +9,11 @@ string solution(vector<string> participant, vector<string> completion) {
     
     sort(participant.begin(), participant.end());
     sort(completion.begin(), completion.end());
-    // 정렬을 하면 알파벳 순으로 정렬이 되는데, 
     
 
     for (int i =0 ; i < completion.size() ; ++i){
             
-        // 정렬 순서가 다르다는 것은, 달라지는 순서에 participant가 없다는 뜻이고,    
+            
         if (participant[i] != completion[i])
             return participant[i];
     }

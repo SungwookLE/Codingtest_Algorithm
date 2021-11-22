@@ -45,7 +45,7 @@ string greedy(string number, int k){
         maxidx = start;
 
         //k라는 `무빙 윈도우` 안에서 max 값을 찾는 것임!!!! (10/14)
-        for(int j = start ; j <= (i+k); j++){
+        for(int j = start ; j <= (i+k); j++){ff
             if (maxnum < number[j]){
                 maxnum = number[j];
                 maxidx = j;
