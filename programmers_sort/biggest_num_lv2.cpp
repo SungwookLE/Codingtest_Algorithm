@@ -46,3 +46,39 @@ string solution(vector<int> numbers) {
     
     return answer;
 }
+
+//위와 같이  풀면 시간 초과다..
+// 아래처럼 풀어야 한다. cmp 람다 함수 봐라,, 예술이다.
+
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <iostream>
+
+using namespace std;
+
+string solution(vector<int> numbers) {
+    string answer = "";
+    
+    vector<string> nums;
+    for(auto num: numbers)
+        nums.push_back(to_string(num));
+    
+    
+    sort(nums.begin(), nums.end(), [](auto a, auto b){
+       
+        if (a+b > b+a)
+            return true;
+        else
+            return false;
+     
+    });
+    
+    for(int i =0 ; i < nums.size() ; ++i)
+       answer += nums[i];
+    
+    if (answer[0] == '0')
+        answer = "0";
+    
+    return answer;
+}
