@@ -7,6 +7,7 @@ using namespace std;
 
 /**
  * @brief String Calculator only works in integer expression
+ * ref: https://penglog.tistory.com/99
  */
 class string_calculator{
     public:
