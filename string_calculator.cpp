@@ -11,9 +11,10 @@ using namespace std;
  */
 class string_calculator{
     public:
-    int string_calc(string inputs){
+    double string_calc(string inputs){
 
-        stringstream ss(inputs);
+        string process_input = tokenizer(inputs);
+        stringstream ss(process_input);
         string token;
 
         while(ss >> token){
@@ -43,8 +44,7 @@ class string_calculator{
                 operations.push_back({prior, token});
             }
             else
-                numbers.push_back(stoi(token));
-
+                numbers.push_back(stod(token));
         }
 
         while(!operations.empty())
@@ -54,9 +54,33 @@ class string_calculator{
     }
 
     private:
-    
+
+    string tokenizer(string _input){
+        string process_string;
+        bool flag = false;
+        for(int i= 0; i < _input.length() ; ++i){
+            if (_input[i] >= '0' && _input[i] <= '9' || _input[i] == '.'){
+                if (flag == false){
+                    process_string += ' ';
+                    process_string += _input[i];
+                    flag = true;
+                }
+                else{
+                    process_string += _input[i];
+                }
+            }
+            else{
+                flag = false;
+                process_string+=' ';
+                process_string+= _input[i];
+            }
+        }
+        cout << process_string << endl;
+        return process_string;
+    }
+
     void calc(){
-        int a, b, result;
+        double a, b, result;
         b = numbers.back();
         numbers.pop_back();
         a = numbers.back();
@@ -66,16 +90,18 @@ class string_calculator{
         operations.pop_back();
 
         if (o == "*")
-            result = a*b;
+            result = (double)a*b;
         else if ( o =="/")
-            result = a/b;
+            result = (double)a/b;
         else if ( o =="+")
-            result = a+b;
+            result = (double)a+b;
         else if ( o == "-")
-            result = a-b;
+            result = (double)a-b;
         
+        iter+=1;
+
         numbers.push_back(result);
-        cout << "intermediate calc:\n";
+        cout << iter << "th intermediate: ";
         for (auto a : numbers)
             cout << a << " ";
         cout << endl;
@@ -84,8 +110,9 @@ class string_calculator{
         int prior;
         string oper;
     };
-    vector<int> numbers;
+    vector<double> numbers;
     vector<op> operations;
+    int iter = 0;
 
     /**
      * @brief Not Use, just for showing operator priority
