@@ -1,225 +1,187 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <queue>
-#include <memory.h>
-// https://zoosso.tistory.com/1069
-
-
 using namespace std;
 
-#define MIN 0
-#define MAX 2e9
-#define EMPTY 0
-
-struct Node
+class solver
 {
-	int x, y;
-};
 
-inline int min(int& A, int& B) { return A < B ? A : B; }
-inline int max(int& A, int& B) { return A > B ? A : B; }
-const int dx[] = { 0, 0, -1, 1 };
-const int dy[] = { 1, -1, 0, 0 };
-
-const int MAX_N = 100 + 5;
-int N, K, ans;
-int map[MAX_N][MAX_N];
-
-void input()
-{
-	scanf("%d %d", &N, &K);
-
-	// 가장 왼쪽에 있는 어항부터 물고기 수 입력
-	for (int i = 1; i <= N; i++)
+public:
+	solver(const int _A[], int _N, int _K) : N(_N), K(_K)
 	{
-		scanf("%d", &map[N][i]);
+		A.resize(N + 1, vector<int>(N + 1, 0));
+
+		for (int i = 1; i <= N; ++i)
+			A[N][i] = _A[i - 1];
 	}
-}
-
-void addFish()
-{
-	vector<Node> vec;
-	int minVal = MAX;
-	for (int x = 1; x <= N; x++)
+	void print()
 	{
-		for (int y = 1; y <= N; y++)
+		for (auto a : A)
 		{
-			if (map[x][y] == EMPTY)
-				continue;
-
-			// 최소값에 해당하는 어항 찾기
-			if (map[x][y] < minVal)
+			for (auto b : a)
 			{
-				minVal = map[x][y];
-				vec.clear();
-				vec.push_back({ x, y });
+				cout << b << " ";
 			}
-
-			// 같은 최소값을 가지고 있는 어항인 경우
-			else if (map[x][y] == minVal)
-			{
-				vec.push_back({ x, y });
-			}
+			cout << endl;
 		}
 	}
 
-	for (int i = 0; i < vec.size(); ++i)
+	void roll()
 	{
-		map[vec[i].x][vec[i].y]++;
-	}
-}
-
-void roll()
-{
-	int pivot, w, h;
-	pivot = w = h = 1;
-
-	for (int idx = 0; ; ++idx)
-	{
-		if (pivot - 1 + w + h > N)
-			break;
-
-		for (int c = pivot; c < pivot + w; c++)
+		int pivot = 1, w = 1, h = 1;
+		int idx = 0;
+		while (pivot - 1 + w + h <= N)
 		{
-			for (int r = N; r > N - h; r--)
+			for (int c = pivot; c < pivot + w; ++c)
 			{
-				int nextR = (N - w) + (c - pivot);
-				int nextC = (pivot + w) + (N - r);
-
-				map[nextR][nextC] = map[r][c];
-				map[r][c] = EMPTY;
-			}
-		}
-
-		pivot += (idx / 2 + 1);
-		idx % 2 ? w++ : h++;
-	}
-}
-
-void controlFish()
-{
-	int cMap[MAX_N][MAX_N] = { 0 };
-
-	for (int x = 1; x <= N; x++)
-	{
-		for (int y = 1; y <= N; y++)
-		{
-			if (map[x][y] != EMPTY)
-			{
-				cMap[x][y] += map[x][y];
-
-				for (int d = 0; d < 4; d++)
+				for (int r = N; r > N - h; --r)
 				{
-					int nextX = x + dx[d];
-					int nextY = y + dy[d];
+					int nextR = (N - w) + (c - pivot);
+					int nextC = (pivot + w) + (N - r);
+					A[nextR][nextC] = A[r][c];
+					A[r][c] = 0;
+				}
+			}
+			pivot += (idx / 2 + 1);
+			if (idx % 2)
+				w += 1;
+			else
+				h += 1;
 
-					if (map[nextX][nextY] == EMPTY)
-						continue;
+			idx += 1;
+		}
+	}
 
-					// 물고기가 많은 경우
-					if (map[x][y] > map[nextX][nextY]) 
+	void find_min_max()
+	{
+		min_val = 100001;
+		max_val = 0;
+		for (int i = 1; i <= N; ++i)
+		{
+			min_val = min(A[N][i], min_val);
+			max_val = max(A[N][i], max_val);
+		}
+	}
+
+	vector<int> find_idx(int val)
+	{
+		vector<int> idx_arr;
+		for (int i = 1; i <= N; ++i)
+		{
+			if (A[N][i] == val)
+				idx_arr.push_back(i);
+		}
+		return idx_arr;
+	}
+
+	int diff_element()
+	{
+		find_min_max();
+		return max_val - min_val;
+	}
+
+	void add_one()
+	{
+		find_min_max();
+		vector<int> arr = find_idx(min_val);
+
+		while (!arr.empty())
+		{
+			A[N][arr.back()] += 1;
+			arr.pop_back();
+		}
+	}
+
+	void control()
+	{
+		// BFS: 인접한 물고기의 수를 비교해서 분배
+		vector<pair<int, int>> delta = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+		vector<vector<int>> copy_A(A);
+
+		for (int row = 1; row <= N; ++row)
+		{
+			for (int col = 1; col <= N; ++col)
+			{
+				if (copy_A[row][col] != 0)
+				{
+					for (auto d : delta)
 					{
-						int diff = (map[x][y] - map[nextX][nextY]) / 5;
-						cMap[x][y] -= diff;
-						cMap[nextX][nextY] += diff;
+						int nextRow = row + d.first;
+						int nextCol = col + d.second;
+
+						if (nextRow>N || nextCol>N)
+							continue;
+
+						if (copy_A[nextRow][nextCol] == 0)
+							continue;
+
+						//물고기가 많은 경우
+						if (A[row][col] > A[nextRow][nextCol])
+						{
+							int diff = (A[row][col] - A[nextRow][nextCol]) / 5;
+							copy_A[row][col] -= diff;
+							copy_A[nextRow][nextCol] += diff;
+						}
 					}
 				}
 			}
 		}
+		A = copy_A;
 	}
 
-	memcpy(map, cMap, sizeof(cMap));
-}
+	void flat(){
+		queue<int> que;
+		for(int col=1 ; col <=N; ++col){
+			if (A[N][col] ==0) continue;
 
-void sortFish()
-{
-	queue<int> que;
-	for (int y = 1; y <= N; y++)
-	{
-		// 비어있는 열(col)인 경우 skip
-		if (map[N][y] == EMPTY) continue;
+			for(int row =N ; row>=1;--row){
 
-		for (int x = N; x >= 1; --x)
-		{
-			// 중간에 비어져 있다면 break
-			if (map[x][y] == EMPTY)
-				break;
+				if (A[row][col] ==0)
+					break;
 
-			// vector에 순서대로 저장해주고 map[][]에서 비워준다.
-			que.push(map[x][y]);
-			map[x][y] = EMPTY;
+				que.push(A[row][col]);
+				A[row][col] = 0;
+			}
+		}
+
+		int col =1;
+		while(!que.empty()){
+			A[N][col++] = que.front();
+			que.pop();
 		}
 	}
 
-	int col = 1;
-	while (!que.empty())
-	{
-		map[N][col++] = que.front();
-		que.pop();
-	}
-}
 
-void fold()
-{
-	int quarterN = N / 4;
-	int sCol[4] = {0, N,  N - quarterN + 1, N};
-	int cDir[4] = {0, -1, 1, -1};
-	
-	int srcY = 1;
-	for (int i = 1; i <= 3; ++i)
-	{
-		int col = sCol[i];
-		for (int j = 0; j < quarterN; ++j)
-		{
-			map[N - i][col] = map[N][srcY];
-			map[N][srcY] = EMPTY;
+private:
+	vector<vector<int>> A;
+	int N, K, min_val, max_val;
+};
 
-			col += cDir[i]; // 해당 row 진행 방향으로
-			srcY++;	// 옮겨지는 대상
-		}
-	}
-}
-
-int getDiff()
-{
-	int maxVal = MIN;
-	int minVal = MAX;
-
-	for (int x = 1; x <= N; x++)
-	{
-		for (int y = 1; y <= N; y++)
-		{
-			if (map[x][y] == EMPTY)
-				continue;
-
-			maxVal = max(maxVal, map[x][y]);
-			minVal = min(minVal, map[x][y]);
-		}
-	}
-
-	return (maxVal - minVal);
-}
-
+int N, K;
 int main()
 {
-	// freopen("input.txt", "r", stdin);
-	input();
-	
-    
-    while (1)
-	{
-		addFish();           // 1. 물고기 추가
+	int answer = 0;
+	cin >> N >> K;
+	int A[101] = {
+		0,
+	};
+	for (int i = 0; i < N; ++i)
+		cin >> A[i];
 
-		roll();              // 2. 어항 쌓기
-		controlFish();       // 3. 물고기 수 조절
-		sortFish();          // 4. 물고기 정렬
+	solver solve(A, N, K);
 
-		fold();              // 5. 어항 접기
-		controlFish();       // 6. 물고기 수 조절
-		sortFish();          // 7. 물고기 정렬
+	while(solve.diff_element() > K){
 
-		ans++;               // 8. 정리 횟수
-		if (getDiff() <= K) break;
+	solve.add_one();
+	solve.roll();
+	solve.control();
+	solve.print();
+	solve.flat();
+
+	answer+=1;
 	}
-	printf("%d\n", ans);
+
+	cout << answer << endl;
+	return 0;
 }
