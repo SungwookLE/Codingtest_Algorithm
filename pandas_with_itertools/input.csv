@@ -1,0 +1,10 @@
+TgtCndMovDirectStatusFlg,TgtCndGndVelLong,TgtCndGndVelLat,TgtCndAbsHdAng,TgtCndConf,InitEnableFlg
+Default,Stop,Stop,0,VALID,VALID
+Crossing,(+) 1.38mps up,(+-) 1.38mps up,(dx),INVALID,INVALID
+Moving,(+) 1.38mps down,(+-) 1.38mps down,(dy),,
+Oncoming,(+) 0.1mps up,(+-) 0.1mps up,(dy/dx) 40deg down,,
+Stationary,(+) 0.1mps down,(+-) 0.1mps down,(dy/dx) 40deg up,,
+,(-) -1.94mps down,,(dy/dx) 50deg down,,
+,(-) -1.94mps up,,(dy/dx) 50deg up,,
+,(-) -0.5mps down,,,,
+,(-) -0.5mps up,,,,
