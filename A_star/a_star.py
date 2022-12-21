@@ -168,5 +168,3 @@ if __name__== "__main__":
     Maze = ReadMaze("./maze.txt")
     Searcher = Search(Maze.start_point, Maze.goal_point, Maze.maze)
     Searcher.searh_step()
-
-
