@@ -46,6 +46,8 @@ class prob_1026{
 };
 
 int main(){
+    // std::cin.tie(NULL);
+    // std::ios_base::sync_with_stdio(false);
     prob_1026 solver;
     solver.solver();
 
