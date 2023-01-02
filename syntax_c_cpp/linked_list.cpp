@@ -63,13 +63,13 @@ class linked_list{
             node<T> * delNode = List->head;
             node<T> * delNextNode = List->head->next;
 
-            std::cout << List->head->data << " is deleted\n";
+            std::cout << List->head << " is deleted\n";
             delete delNode;
             while(delNextNode != NULL){
                 delNode = delNextNode;
                 delNextNode = delNextNode->next;
 
-                std::cout << delNode->data << " is deleted\n";
+                std::cout << delNode << " is deleted\n";
                 delete delNode;
             }
         }

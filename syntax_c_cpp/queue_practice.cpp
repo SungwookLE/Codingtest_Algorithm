@@ -1,5 +1,9 @@
+/**
+ * @brief Queue practice
+ * @date 2023-01-02
+ */
+
 #include <iostream>
-#include <memory>
 
 template<typename T>
 class Queue{
