@@ -1,10 +1,14 @@
 /**
- * @brief 백준 7569번 문제
+ * @brief 백준 7569번 문제 
+ * @brief 1차시도: 아놔 시간초과, 반례도 있는듯 시간초과 해결되면 반례에서 막힐듯 한데... 근데 이거 올림피아드 초딩 문제라는데
+ * 초딩들 왜케 대단해.... 대단해... , vector . erase( vector.begin()) 이라고 되어있던것을 queue를 써서 pop을 하니까
+ * 시간초과는 해소되었다.
  * @date 2023-01-15
  */
 
 #include <iostream>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -17,6 +21,21 @@ public:
         N = _N;
         H = _H;
         boxes = vector<vector<vector<int>>>(
+            H,
+            vector<vector<int>>(
+                N,
+                vector<int>(M, 0)
+                )
+            );
+
+        visited = vector<vector<vector<int>>>(
+            H,
+            vector<vector<int>>(
+                N,
+                vector<int>(M, 0)
+                )
+            );
+        navigator = vector<vector<vector<int>>>(
             H,
             vector<vector<int>>(
                 N,
@@ -48,7 +67,7 @@ public:
         for (int z = 0; z < H; ++z){
             for (int y = 0; y < N; ++y){
                 for (int x = 0; x < M; ++x){
-                    cout << boxes[z][y][x] << " ";
+                    cout << navigator[z][y][x] << " ";
                 }
                 cout << endl;
             }
@@ -73,62 +92,40 @@ public:
     }
 
     void BFS(vector<int> start){
-
         if (count_notyet == 0)
             return;
 
-        visited = vector<vector<vector<int>>>(
-            H,
-            vector<vector<int>>(
-                N,
-                vector<int>(M, 0)
-                )
-            );
-        navigator = vector<vector<vector<int>>>(
-            H,
-            vector<vector<int>>(
-                N,
-                vector<int>(M, 0)
-                )
-            );
-
         int x=start[0], y=start[1], z=start[2];
         visited[z][y][x] = 1;
-        opens.push_back({x,y,z});
+        opens.push({x,y,z});
 
+        int days = 0;
+        
         while(!opens.empty()){
-
             vector<int> next_point = opens.front();
-            opens.erase(opens.begin());
+            opens.pop();
 
             x = next_point[0];
             y = next_point[1];
             z = next_point[2];
 
-            boxes[z][y][x] = 1;
+            days = navigator[z][y][x];
 
             for(int i = 0 ; i < deltas.size(); ++i){
                 vector<int> d = deltas[i];
                 int n_x = x + d[0], n_y = y + d[1], n_z = z + d[2];
                 if (n_x >= 0 && n_y >= 0 && n_z >= 0 && n_x < M && n_y < N && n_z < H){
-                    if (visited[n_z][n_y][n_x] == 0 && boxes[n_z][n_y][n_x] == 0){
+                    if (visited[n_z][n_y][n_x] == 0 && boxes[n_z][n_y][n_x] == 0 ){
                         visited[n_z][n_y][n_x] = 1;
                         count_notyet -= 1;
-                        opens.push_back({n_x, n_y, n_z});
-                        navigator[n_z][n_y][n_x] = i;
+
+                        opens.push({n_x, n_y, n_z});
+                        navigator[n_z][n_y][n_x] = days+1;
                     }
                 }
             }
         }
 
-        int days = 0;
-        while( x != start[0] || y != start[1] || z != start[2]){
-            days+=1;
-            int coord_x = x, coord_y = y, coord_z = z;
-            x -= deltas[navigator[coord_z][coord_y][coord_x]][0];
-            y -= deltas[navigator[coord_z][coord_y][coord_x]][1];
-            z -= deltas[navigator[coord_z][coord_y][coord_x]][2];
-        } 
         if (shortest_days < days)
             shortest_days = days;
 
@@ -153,7 +150,7 @@ private:
     int shortest_days = 0; // BFS
     vector<vector<vector<int>>> visited; // BFS
     vector<vector<vector<int>>> navigator; // BFS
-    vector<vector<int>> opens; // BFS
+    queue<vector<int>> opens; // BFS
 
     vector<vector<int>> deltas = { {-1,0,0}, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1} };
     bool infection = false; // DFS
@@ -170,8 +167,8 @@ int main()
     for(auto s : solver.starts){
         solver.BFS(s);
     }
-
     solver.BFS_answer();
+    //solver.print_boxes();
 
     return 0;
 }
