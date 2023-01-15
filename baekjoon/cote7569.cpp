@@ -3,6 +3,7 @@
  * @brief 1차시도: 아놔 시간초과, 반례도 있는듯 시간초과 해결되면 반례에서 막힐듯 한데... 근데 이거 올림피아드 초딩 문제라는데
  * 초딩들 왜케 대단해.... 대단해... , vector . erase( vector.begin()) 이라고 되어있던것을 queue를 써서 pop을 하니까
  * 시간초과는 해소되었다.
+ * @brief 2차시도: 정답, opens에 모든 start 포인트를 넣어줌으로써 정답!!
  * @date 2023-01-15
  */
 
@@ -91,43 +92,44 @@ public:
         }
     }
 
-    void BFS(vector<int> start){
-        if (count_notyet == 0)
-            return;
+    void BFS(){
+            int x, y, z;
 
-        int x=start[0], y=start[1], z=start[2];
-        visited[z][y][x] = 1;
-        opens.push({x,y,z});
+            for(auto s : starts){
+                x=s[0], y=s[1], z=s[2];
+                visited[z][y][x] = 1;
+                opens.push({x,y,z}); // 모든 start 지점을 opens에 순서대로 넣어줌으로써 골고루 시작되게끔..!
+                // 반례: 10 1 1, 1 0 0 0 0 0 0 0 0 1, 정답은 4
+            }
 
-        int days = 0;
-        
-        while(!opens.empty()){
-            vector<int> next_point = opens.front();
-            opens.pop();
+            int days = 0;
+            while(!opens.empty()){
+                vector<int> next_point = opens.front();
+                opens.pop();
 
-            x = next_point[0];
-            y = next_point[1];
-            z = next_point[2];
+                x = next_point[0];
+                y = next_point[1];
+                z = next_point[2];
 
-            days = navigator[z][y][x];
+                days = navigator[z][y][x];
 
-            for(int i = 0 ; i < deltas.size(); ++i){
-                vector<int> d = deltas[i];
-                int n_x = x + d[0], n_y = y + d[1], n_z = z + d[2];
-                if (n_x >= 0 && n_y >= 0 && n_z >= 0 && n_x < M && n_y < N && n_z < H){
-                    if (visited[n_z][n_y][n_x] == 0 && boxes[n_z][n_y][n_x] == 0 ){
-                        visited[n_z][n_y][n_x] = 1;
-                        count_notyet -= 1;
+                for(int i = 0 ; i < deltas.size(); ++i){
+                    vector<int> d = deltas[i];
+                    int n_x = x + d[0], n_y = y + d[1], n_z = z + d[2];
+                    if (n_x >= 0 && n_y >= 0 && n_z >= 0 && n_x < M && n_y < N && n_z < H){
+                        if (visited[n_z][n_y][n_x] == 0 && boxes[n_z][n_y][n_x] == 0 ){
+                            visited[n_z][n_y][n_x] = 1;
+                            count_notyet -= 1;
 
-                        opens.push({n_x, n_y, n_z});
-                        navigator[n_z][n_y][n_x] = days+1;
+                            opens.push({n_x, n_y, n_z});
+                            navigator[n_z][n_y][n_x] = days+1;
+                        }
                     }
                 }
             }
-        }
 
-        if (shortest_days < days)
-            shortest_days = days;
+            if (shortest_days < days)
+                shortest_days = days;
 
         return;
     }
@@ -164,9 +166,7 @@ int main()
     cin >> M >> N >> H;
     solver_7569 solver(M, N, H);
 
-    for(auto s : solver.starts){
-        solver.BFS(s);
-    }
+    solver.BFS();
     solver.BFS_answer();
     //solver.print_boxes();
 
