@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include "Eigen/Dense"
+#include "Eigen/Dense" // g++ $(pkg-config --cflags eigen3) kalman_filter_2D_linear.cpp
 
 class Kalman{
     public:
