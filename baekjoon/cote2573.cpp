@@ -2,6 +2,10 @@
  * @brief 백준2573번 문제: 빙산
  * @brief 이런~ 빙산 1차시도: 시간초과 뭥미... ;;
  * @brief 2차시도: 시간초과 실패 ㅠㅠ.. dfs를 포기해야하는건가 근데 bfs로 풀어도 이 문제같은 경우는 시간복잡도가 같은건데...
+ * @brief 3차시도: 백준에 질문해서 해결함.. 와 대박
+ * check_around 에서 값 복사에 따라서 시간 크게 차이 난다는걸.. 알게되었습니다.
+ * stl의 vector 가 값을 복사할 때, 하나씩 복사해간다는 사실을 망각하고 있었습니다.
+ * 이에 check_ around 함수에서 맵을 복사해오지 않고., 클래스의 멤버 변수로 선언하여 사용하였더니.. 시간초과 해결하였습니다.
  * @date 2023-01-24
  * @file cote2573.cpp
  */
@@ -31,7 +35,7 @@ public:
 
     void melt_ices()
     {
-        vector<vector<int>> copy_ices_map = ices_map;
+        copy_ices_map = ices_map;
 
         for (int row = 1; row < N - 1; ++row)
         {
@@ -39,7 +43,7 @@ public:
             {
                 if (copy_ices_map[row][col] > 0)
                 {
-                    ices_map[row][col] -= check_around(copy_ices_map, row, col);
+                    ices_map[row][col] -= check_around(row, col);
                     ices_map[row][col] = max(0, ices_map[row][col]);
                 }
             }
@@ -48,7 +52,10 @@ public:
         return;
     }
 
-    int check_around(vector<vector<int>> copy_ices_map, int r, int c)
+    // 시간초과가 났던 코드에는 함수의 프로토타입에 check_around(vector<vector<int>> check_map, int r, int c) 로 선언어 되어있었다. 
+    // 모든 배열 요소마다 맵을 복사해오면서 맵복사 시간복잡도(O(NM))이 소요되어 시간 소모가 컸던 것이 문제였다.
+    // 이에 check_ around 함수에서 맵을 복사해오지 않고., 클래스의 멤버 변수로 선언하여 사용하였더니.. 시간초과 해결하였습니다.
+    int check_around(int r, int c) 
     {
         int next_r, next_c;
         int count_zero = 0;
@@ -79,7 +86,7 @@ public:
         {
             next_r = r + d.first;
             next_c = c + d.second;
-            if (next_r >= 1 && next_c >= 1 && next_r < N-1 && next_c < M-1)
+            if (next_r >= 1 && next_c >= 1 && next_r < N - 1 && next_c < M - 1)
             {
                 if (ices_map[next_r][next_c] > 0 && visited[next_r][next_c] == 0)
                 {
@@ -106,10 +113,10 @@ public:
                 {
                     if (ices_map[row][col] > 0 && visited[row][col] == 0)
                     {
-                        if (count >= 2)
-                            return year;
                         dfs(row, col);
                         count += 1;
+                        if (count >= 2)
+                            return year;
                     }
                 }
             }
@@ -120,7 +127,7 @@ public:
             melt_ices();
             year += 1;
 
-            // monitoring();
+            //monitoring();
         }
         return 0;
     }
@@ -141,6 +148,7 @@ public:
 private:
     int N, M;
     vector<vector<int>> ices_map;
+    vector<vector<int>> copy_ices_map; // 이에 check_ around 함수에서 맵을 복사해오지 않고., 클래스의 멤버 변수로 선언하여 사용하였더니.. 시간초과 해결하였습니다.
 
     vector<pair<int, int>> delta = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
     vector<vector<int>> visited;
