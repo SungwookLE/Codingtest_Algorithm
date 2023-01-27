@@ -1,6 +1,7 @@
 /**
  * @brief 백준 5014번 문제
  * @brief 근데 이 문제 DP 처럼도 풀 수 있나?
+ * @brief 1차시도: 메모리 초과.. 아무래도  graph 만들어줄때 너무 SPARSE 하게 만들어서 배열 사이즈가 너무 커서 그런가보다...
  * @date 2023-01-27
  */
 
@@ -12,16 +13,12 @@ using namespace std;
 
 class solver_5014
 {
-
 public:
     solver_5014(int _F, int _S, int _G, int _U, int _D) : F(_F), S(_S), G(_G), U(_U), D(_D)
     {
-
-        max_graph = F + 1 + 3 * U;
-
+        max_graph = F + 1 + 2 * U;
         graph = vector<vector<int>>(max_graph + 1, vector<int>(max_graph + 1, 0));
         visited = vector<vector<int>>(max_graph + 1, vector<int>(max_graph + 1, 0));
-        navigator = vector<vector<int>>(max_graph + 1, vector<int>(max_graph + 1, 0));
         upAndDown = {U, -D};
 
         // make graph: graph[from][to] = cost
@@ -54,48 +51,33 @@ public:
 
     void solve()
     {
-
-        
         opens.push({S, S}); // opens = {from, to};
         visited[S][S] = 1;
-        navigator[S][S] = S; // up or down
 
         while (!opens.empty() && notFound)
         {
-
             vector<int> now = opens.front();
             opens.pop();
             int now_from = now[0];
             int now_to = now[1];
 
-            cout << now_from << " " << now_to << endl;
-
             if (now_to == G)
             {
                 notFound = false;
+                int answer = 1;
+                while (true)
+                {
+                    answer += 1;
 
-                int answer = 0;
-                while (true){
+                    int diff = visited[now_from][now_to];
+                    now_to = now_from;
+                    now_from = now_to - diff;
 
-                    int before_from = now_from - navigator[now_from][now_to];       // 11 - 2 = 9
-                    cout <<  navigator[now_from][now_to] << endl;
-                    
-                    if (answer > 5){
-                        return;
-                    }
-
-                    now_to = now_from; 
-                    now_from = before_from; 
-
-                    if (navigator[now_from][now_to] == S){
+                    if (now_from == S)
+                    {
                         break;
                     }
-
-                    answer+=1;
                 }
-
-                
-
 
                 cout << answer << endl;
                 return;
@@ -110,9 +92,9 @@ public:
                 {
                     if (visited[next_from][next_to] == 0 && graph[next_from][next_to] == 1)
                     {
-                        visited[next_from][next_to] = 1;
+                        visited[next_from][next_to] = now_to - now_from;
                         opens.push({next_from, next_to});
-                        navigator[next_from][next_to] = a;
+                        // navigator[next_from][next_to] = now_to - now_from;
                     }
                 }
             }
@@ -138,12 +120,10 @@ private:
     vector<int> upAndDown;
     bool notFound = true;
     int max_graph;
-    vector<vector<int>> navigator;
 };
 
 int main()
 {
-
     int F, S, G, U, D;
     cin >> F >> S >> G >> U >> D;
     solver_5014 solver(F, S, G, U, D);
