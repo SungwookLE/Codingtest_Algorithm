@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <algorithm>
 
 using namespace std;
 
@@ -17,8 +18,8 @@ public:
     solver_5014(int _F, int _S, int _G, int _U, int _D) : F(_F), S(_S), G(_G), U(_U), D(_D)
     {
         max_graph = F + 1 + 2 * U;
-        graph = vector<vector<int>>(max_graph + 1, vector<int>(max_graph + 1, 0));
-        visited = vector<vector<int>>(max_graph + 1, vector<int>(max_graph + 1, 0));
+        // graph = vector<vector<int>>(max_graph + 1, vector<int>(max_graph + 1, 0)); // 2차원배열이 아니고..., 1차원 배열로 바꾸셔야 겠소..,
+        // visited = vector<vector<int>>(max_graph + 1, vector<int>(max_graph + 1, 0));
         upAndDown = {U, -D};
 
         // make graph: graph[from][to] = cost
@@ -26,14 +27,13 @@ public:
         {
             for (int i = S + U; i <= max_graph; i = i + U)
             {
-                graph[i - U][i] = 1;
+                // graph[i - U][i] = 1; 
+                graph.push_back({i-U, i});
 
                 if (D > 0)
                 {
-                    for (int j = i - D; j >= 1; j = j - D)
-                    {
-                        graph[j + D][j] = 1;
-                    }
+                    // graph[i][i-D] = 1;
+                    graph.push_back({i, i-D});
                 }
             }
         }
@@ -41,18 +41,30 @@ public:
         {
             if (D > 0)
             {
-                for (int j = S - D; j >= 1; j = j - D)
-                {
-                    graph[j + D][j] = 1;
-                }
+                // graph[S][S-D] = 1;
+                graph.push_back({S, S-D});
             }
         }
+        sort(graph.begin(), graph.end(), [](auto a, auto b){
+            if (a[0] < b[0])
+                return true;
+            else if (a[0] ==b[0]){
+                if (a[1]<=b[1])
+                    return true;
+                else
+                    return false;
+            }
+            else
+                return false;
+        });
+
+        no_visited = graph;
     }
 
     void solve()
     {
         opens.push({S, S}); // opens = {from, to};
-        visited[S][S] = 1;
+        // visited[S][S] = 1;
 
         while (!opens.empty() && notFound)
         {
@@ -64,22 +76,7 @@ public:
             if (now_to == G)
             {
                 notFound = false;
-                int answer = 1;
-                while (true)
-                {
-                    answer += 1;
-
-                    int diff = visited[now_from][now_to];
-                    now_to = now_from;
-                    now_from = now_to - diff;
-
-                    if (now_from == S)
-                    {
-                        break;
-                    }
-                }
-
-                cout << answer << endl;
+                cout << "FOUND\n";
                 return;
             }
 
@@ -90,14 +87,16 @@ public:
 
                 if (next_from > 0 && next_from <= max_graph && next_to > 0 && next_to <= max_graph)
                 {
-                    if (visited[next_from][next_to] == 0 && graph[next_from][next_to] == 1)
-                    {
-                        visited[next_from][next_to] = now_to - now_from;
-                        opens.push({next_from, next_to});
-                        // navigator[next_from][next_to] = now_to - now_from;
+                    vector<int> v = {next_from, next_to};
+                    auto i = find(no_visited.begin(), no_visited.end(), v);
+                    if ( i!= no_visited.end()){
+                        no_visited.erase(i);
+                        opens.push(v);
                     }
                 }
             }
+
+
         }
         cout << "use the stairs\n";
     }
@@ -115,7 +114,8 @@ public:
 private:
     int F, S, G, U, D;
     vector<vector<int>> graph;
-    vector<vector<int>> visited;
+    vector<vector<int>> no_visited;
+    vector<vector<int>> navigator;
     queue<vector<int>> opens;
     vector<int> upAndDown;
     bool notFound = true;
