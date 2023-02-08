@@ -1,5 +1,6 @@
 /**
  * @brief 백준 9205번 문제: 맥주마시며 걸어가기
+ * @brief 1차 시도 실패.. 일단 시간초과 생각않고 find 알고리즘 이용해서 구현을 했는데,알고리즘 오류가 있음 나는 단방향으로 생각해서, 부호처리 잘해주면 패스할수도?
  * @date 2023-02-08
  */
 
@@ -16,7 +17,7 @@ public:
     {
         int x, y;
         cin >> x >> y;
-        start = {x,y};
+        start = {x, y};
         map.push_back(start);
 
         for(int i =0 ; i < n ; ++i){
@@ -58,7 +59,7 @@ public:
 
         beers = 20;
 
-        if (now_x >= goal[0] && now_y >= goal[1]){
+        if (abs(goal[0]-now_x) < PER && abs(goal[1]-now_y) < PER){
             cout << "happy\n";
             found = true;
             return;
@@ -77,8 +78,8 @@ public:
             next_y_xdir = now_y;
 
             next = {next_x_xdir, next_y_xdir};
-            if (next[0] >= -32768 && next[1] >=-32768 && next[0] < 32767 && next[1] < 32767){
-                if (next[0] >= map.front()[0] && next[1] >= map.front()[1]){
+            if (next[0] >=0 && next[1] >=0 && next[0] < 65536 && next[1] < 65536){
+                if (abs(map.front()[0]-next[0]) < PER && abs(map.front()[1]-next[1]) < PER ){
                     DFS(next);
                     break;
                 }
@@ -87,8 +88,8 @@ public:
             next_x_ydir = now_x;
             next_y_ydir += PER;
             next = {next_x_ydir, next_y_ydir};
-            if (next[0] >= -32768 && next[1] >=-32768 && next[0] < 32767 && next[1] < 32767){
-                if (next[0] >= map.front()[0] && next[1] >= map.front()[1]){
+            if (next[0] >= 0 && next[1] >= 0 && next[0] < 65536 && next[1] < 65536){
+                if (abs(map.front()[0]-next[0]) < PER && abs(map.front()[1]-next[1]) < PER ){
                     DFS(next);
                     break;
                 }
@@ -97,8 +98,8 @@ public:
             next_x_xydir += PER/2;
             next_y_xydir += PER/2;
             next = {next_x_xydir, next_y_xydir};
-            if (next[0] >= -32768 && next[1] >=-32768 && next[0] < 32767 && next[1] < 32767){
-                if (next[0] >= map.front()[0] && next[1] >= map.front()[1]){
+            if (next[0] >= 0 && next[1] >= 0 && next[0] < 65536 && next[1] < 65536){
+                if (abs(map.front()[0]-next[0]) < PER && abs(map.front()[1]-next[1]) < PER ){
                     DFS(next);
                     break;
                 }
