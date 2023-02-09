@@ -1,6 +1,6 @@
 /**
  * @brief 백준 9205번 문제: 맥주마시며 걸어가기
- * @brief 1차 시도 실패.. 일단 시간초과 생각않고 find 알고리즘 이용해서 구현을 했는데,알고리즘 오류가 있음 나는 단방향으로 생각해서, 부호처리 잘해주면 패스할수도?
+ * @brief 1차 시도 실패.. 일단 시간초과 생각않고 find 알고리즘 이용해서 구현을 했는데,알고리즘 오류가 있음 나는 단방향으로 생각해서, 부호처리 잘해주면 패스할수도? => 실패
  * @date 2023-02-08
  */
 
@@ -56,12 +56,11 @@ public:
         int next_x_ydir = now_x, next_y_ydir = now_y;
         int next_x_xydir = now_x, next_y_xydir = now_y;
 
-
         beers = 20;
 
-        if (abs(goal[0]-now_x) < PER && abs(goal[1]-now_y) < PER){
-            cout << "happy\n";
+        if (  (abs(now_x)-abs(goal[0]) >= 0) && (abs(now_x)-abs(goal[0]) < PER) && (abs(now_y)-abs(goal[1]) >= 0) && ((abs(now_y) - abs(goal[1])) < PER)){
             found = true;
+            ans = "happy";
             return;
         }
 
@@ -69,8 +68,8 @@ public:
         while(!resign && !found){
             beers-=1;
             if (beers == -1){
-                cout << "sad\n";
                 resign = true;
+                ans = "sad";
                 return;
             }
 
@@ -79,9 +78,8 @@ public:
 
             next = {next_x_xdir, next_y_xdir};
             if (next[0] >=0 && next[1] >=0 && next[0] < 65536 && next[1] < 65536){
-                if (abs(map.front()[0]-next[0]) < PER && abs(map.front()[1]-next[1]) < PER ){
+                if ((abs(next[0]) - abs(map.front()[0])>=0) && (abs(next[0]) - abs(map.front()[0])<PER)  && (abs(next[1]) - abs(map.front()[1])>=0) && (abs(next[1]) - abs(map.front()[1])<PER)){
                     DFS(next);
-                    break;
                 }
             }
 
@@ -89,9 +87,8 @@ public:
             next_y_ydir += PER;
             next = {next_x_ydir, next_y_ydir};
             if (next[0] >= 0 && next[1] >= 0 && next[0] < 65536 && next[1] < 65536){
-                if (abs(map.front()[0]-next[0]) < PER && abs(map.front()[1]-next[1]) < PER ){
+                if ((abs(next[0]) - abs(map.front()[0])>=0) && (abs(next[0]) - abs(map.front()[0])<PER)  && (abs(next[1]) - abs(map.front()[1])>=0) && (abs(next[1]) - abs(map.front()[1])<PER)){
                     DFS(next);
-                    break;
                 }
             }
 
@@ -99,17 +96,15 @@ public:
             next_y_xydir += PER/2;
             next = {next_x_xydir, next_y_xydir};
             if (next[0] >= 0 && next[1] >= 0 && next[0] < 65536 && next[1] < 65536){
-                if (abs(map.front()[0]-next[0]) < PER && abs(map.front()[1]-next[1]) < PER ){
+                if ((abs(next[0]) - abs(map.front()[0])>=0) && (abs(next[0]) - abs(map.front()[0])<PER)  && (abs(next[1]) - abs(map.front()[1])>=0) && (abs(next[1]) - abs(map.front()[1])<PER)){
                     DFS(next);
-                    break;
                 }
             }
-
         }
     }
     
-
-     vector<int> start;
+    string ans;
+    vector<int> start;
 private:
     bool resign =false;
     bool found = false;
@@ -126,6 +121,7 @@ int main()
 {
     int t; // 테스트 케이스의 개수
     int n; // 맥주를 파는 편의점의 개수
+    vector<string> ans;
 
     cin >> t;
     for (int i = 0; i < t; ++i)
@@ -133,6 +129,11 @@ int main()
         cin >> n;
         solver_9205 solver(n);
         solver.DFS({solver.start[0], solver.start[1]});
+        ans.push_back(solver.ans);
+    }
+
+    for(auto a : ans){
+        cout << a << endl;
     }
 
     return 0;
