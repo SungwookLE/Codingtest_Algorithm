@@ -1,5 +1,6 @@
 /**
  * @brief 백준 #25430번 문제: 1차시도 메모리초과 512MB 까지만 쓰라고 함.., int 1개가 4byte 니까 256*10^6*2 = 16 * 10^3 사이즈의 2차원 행렬 2개를 쓸수 있다는 말
+ * @brief 2차시도 조금 고생해서 메모리 초과는 없앳는데 시간초과 ㅠ
  * @date 2023-02-13
  */
 
@@ -15,83 +16,89 @@ class solver_25430{
     solver_25430(int _N, int _M){
         N = _N;
         M = _M;
-        kernels = vector<vector<int>>(N+1, vector<int>(N+1,0));
-        visited = vector<vector<int>>(N+1, vector<int>(N+1,0));
+
+        visited = vector<vector<int>>(2*M,vector<int>(2,0));
 
         for(int i=0 ; i < M ; ++i){
             int s, g, c;
             cin >> s >> g >> c;
-            kernels[s][g] = c;
-            kernels[g][s] = c;
+
+            kernels.push_back({s,g,c});
+            kernels.push_back({g,s,c});
         }
 
         cin >> S >> G;
+
     }
 
     void monitor(){
         cout << endl;
-        for(int i = 1 ; i <= N ; ++i){
-            for(int j = 1 ; j <= N ; ++j){
-                cout << kernels[i][j] << " ";
-            }
+        for(auto k : kernels){
+            for(auto kk : k)
+                cout << kk << " ";
             cout << endl;
         }
     }
 
-
     void digesta(){
 
-        for(int i = 1 ; i <= N ; ++i){
-            if (kernels[S][i] != 0){
-                opens.push_back({S, i, kernels[S][i]});
-                visited[S][i] = S;
+        for(int i = 0 ; i<kernels.size() ; ++i){
+            if (kernels[i][0] == S){
+                opens.push_back({S, kernels[i][1], kernels[i][2], i});
+                visited[i]= {S, 0};
             }
         } 
+
 
         int cost =0;
         while(!opens.empty()){
             sort(opens.begin(), opens.end(), [](auto a, auto b){return a[2] > b[2];});
             vector<int> now = opens.back();
-
             opens.pop_back();
 
             while(now[2]<cost){
-                opens.pop_back();
                 now = opens.back();
+                opens.pop_back();
                 
                 if(opens.empty()){
                     cout << "DIGESTA\n";
                     return;
                 }
             }
+
             cost = now[2];
 
             if (now[1] == G){
-                int from, to;
+                int from, idx, to;   
 
-                from = visited[now[0]][now[1]];
+                idx = now[3];
+                from = visited[idx][0];
                 to = now[0];
 
-                total_cost += kernels[to][G];
-                // cout << G << "<-" << to << ": " << total_cost << endl;
+                total_cost += kernels[idx][2];
+                // cout << G << "<=" << to << ": " << total_cost << endl;
                 while(from != S){
-                    total_cost += kernels[from][to];
+                    idx = visited[idx][1];
+                    total_cost += kernels[idx][2];
                     // cout<< to << "<-" << from << ": " << total_cost << endl;
+
                     int temp = from;
-                    from = visited[from][to];
+                    from = visited[idx][0];
                     to = temp;
                 }
-                total_cost += kernels[from][to];
-                // cout<< to << "<-" << from << ": " << total_cost << endl;
+                idx = visited[idx][1];
+                total_cost += kernels[idx][2];
+                // cout<< to << "<=" << from << ": " << total_cost << endl;
 
                 cout << total_cost << endl;
                 return;
             }
+            
 
-            for(int i = 1 ; i <= N; ++i){
-                if (kernels[now[1]][i] != 0 && visited[now[1]][i] == 0){
-                    opens.push_back({now[1], i, kernels[now[1]][i]});
-                    visited[now[1]][i] = now[0];
+            for(int i = 0 ; i < kernels.size(); ++i){
+                if (visited[i][0] == 0 && kernels[i][0] == now[1] ){
+                    opens.push_back({now[1], kernels[i][1], kernels[i][2], i});
+                    visited[i] = {now[0], now[3]};
                 }
             }
         }
