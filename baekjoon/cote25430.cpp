@@ -6,60 +6,60 @@
 
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
-class solver_25430{
+class solver_25430
+{
 
-    public:
-    solver_25430(int _N, int _M){
+public:
+    solver_25430(int _N, int _M)
+    {
         N = _N;
         M = _M;
 
-        visited = vector<vector<int>>(2*M,vector<int>(2,0));
+        visited = vector<int>(2 * M, 0);
 
-        for(int i=0 ; i < M ; ++i){
+        for (int i = 0; i < M; ++i)
+        {
             int s, g, c;
             cin >> s >> g >> c;
 
-            kernels.push_back({s,g,c});
-            kernels.push_back({g,s,c});
+            kernels.push_back({s, g, c});
+            kernels.push_back({g, s, c});
         }
 
         cin >> S >> G;
-
     }
 
-    void monitor(){
-        cout << endl;
-        for(auto k : kernels){
-            for(auto kk : k)
-                cout << kk << " ";
-            cout << endl;
-        }
-    }
+    void digesta()
+    {
 
-    void digesta(){
-
-        for(int i = 0 ; i<kernels.size() ; ++i){
-            if (kernels[i][0] == S){
+        for (int i = 0; i < kernels.size(); ++i)
+        {
+            if (kernels[i][0] == S)
+            {
                 opens.push_back({S, kernels[i][1], kernels[i][2], i});
-                visited[i]= {S, 0};
+                visited[i] = kernels[i][2];
             }
-        } 
+        }
 
+        int cost = 0;
 
-        int cost =0;
-        while(!opens.empty()){
-            sort(opens.begin(), opens.end(), [](auto a, auto b){return a[2] > b[2];});
+        while (!opens.empty())
+        {
             vector<int> now = opens.back();
             opens.pop_back();
 
-            while(now[2]<cost){
+            if (opens.empty()){
+                cout << "DIGESTA\n";
+                return;
+            }
+
+            while (now[2] < cost)
+            {
                 now = opens.back();
                 opens.pop_back();
-                
                 if(opens.empty()){
                     cout << "DIGESTA\n";
                     return;
@@ -67,62 +67,42 @@ class solver_25430{
             }
 
             cost = now[2];
-
-            if (now[1] == G){
-                int from, idx, to;   
-
-                idx = now[3];
-                from = visited[idx][0];
-                to = now[0];
-
-                total_cost += kernels[idx][2];
-                // cout << G << "<=" << to << ": " << total_cost << endl;
-                while(from != S){
-                    idx = visited[idx][1];
-                    total_cost += kernels[idx][2];
-                    // cout<< to << "<-" << from << ": " << total_cost << endl;
-
-                    int temp = from;
-                    from = visited[idx][0];
-                    to = temp;
-                }
-                idx = visited[idx][1];
-                total_cost += kernels[idx][2];
-                // cout<< to << "<=" << from << ": " << total_cost << endl;
-
-                cout << total_cost << endl;
+            if (now[1] == G)
+            {
+                cout << visited[now[3]] << endl;
                 return;
             }
-            
 
-            for(int i = 0 ; i < kernels.size(); ++i){
-                if (visited[i][0] == 0 && kernels[i][0] == now[1] ){
+            for (int i = 0; i < kernels.size(); ++i)
+            {
+                if (visited[i] == 0 && kernels[i][0] == now[1])
+                {
                     opens.push_back({now[1], kernels[i][1], kernels[i][2], i});
-                    visited[i] = {now[0], now[3]};
+                    visited[i] = visited[now[3]] + kernels[i][2];
                 }
             }
         }
 
         cout << "DIGESTA\n";
+        return;
     }
 
-    private:
+private:
     int N, M;
     int S, G;
-    int total_cost=0;
+    int total_cost = 0;
     vector<vector<int>> kernels;
-    vector<vector<int>> visited;
+    vector<int> visited;
     vector<vector<int>> opens;
-
-
 };
 
-int main(){
+int main()
+{
 
     int N, M;
     cin >> N >> M;
 
-    solver_25430 solver(N,M);
+    solver_25430 solver(N, M);
     solver.digesta();
 
     return 0;
