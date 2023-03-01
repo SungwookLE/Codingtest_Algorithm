@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <cmath>
 
 /**
  * @brief 세그먼트 트리(완전이진트리 Complete Binary Tree): 구간 최대값
