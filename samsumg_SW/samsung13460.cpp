@@ -1,222 +1,116 @@
 /**
- * @date 2023-03-01
+ * @date 2023-03-05
  * @brief 삼성SW 역량테스트 문제: #13460
- * @brief 1차시도: 한 2시간 푼거같은데.. 반례가 많이 보이는... 알고리즘을 이런형태로 가져가면 안되는건가..
- * @brief 2차시도: 흠.... ..
- * @brief 3차시도: BFS로 풀려고 정성을 들여... 도전을 해보았는데 계속되서 새로운 반례가 보이는구나... ㅎㅎㅎ -> 정답 검색해보겠읍니다..
- * @brief TC: https://www.acmicpc.net/board/view/90094
+ * @brief 레퍼런스: https://junbastick.tistory.com/37
+ * @brief BFS로 푸는 접근은 맞았고, 나는 RED공만 주체로 해서 진행하면서 BLUE 공은 예외적으로 처리하려고 하였는데, RED공, BLUE공 둘다 주체로서 처리해주어야 했음
  */
 
 #include <iostream>
-#include <vector>
-#include<iomanip>
-#define sign(x) (x>=0? 1:-1)
-#define delta_d(x) (x>1? 1:-1)
-#define delta_odd(x) ((x%1==1)? 1:-1)
+#include <queue>
 
 using namespace std;
 
+typedef struct
+{
+    int Rx, Ry; // RED
+    int Bx, By; // BLUE
+    int Count;
+} step;
+
 class solver_13460
 {
-
 public:
-    solver_13460(int _H, int _W) : H(_H), W(_W) {
-        board = vector<vector<char>>(H, vector<char>(W,' '));
-        visited = vector<vector<int>>(H, vector<int>(W,-1));
+    solver_13460(int _H, int _W) : H(_H), W(_W)
+    {
 
-        for(int r = 0 ; r < H ; ++r){
-            for(int c =0 ; c < W ; ++c){
-                cin >> board[r][c]; // '.','#','O','R','B'
-                if (board[r][c] == 'O')
-                    Goal = {r,c};
-                else if (board[r][c] == 'R')
-                    Red = {r,c};
-                else if (board[r][c] == 'B')
-                    Blue = {r,c};
+        int Rx = 0, Ry = 0, Bx = 0, By = 0;
+        for (int i = 0; i < H; ++i)
+        {
+            for (int j = 0; j < W; ++j)
+            {
+                cin >> map[i][j];
+                if (map[i][j] == 'R')
+                    Rx = i, Ry = j;
+                else if (map[i][j] == 'B')
+                    Bx = i, By = j;
             }
         }
+        BFS(Rx, Ry, Bx, By);
     }
-    
-    void dfs(){
 
-        opens.push_back({Red[0], Red[1], Blue[0], Blue[1], -1});
-        visited[Red[0]][Red[1]] = 0;
+    void move(int &rx, int &ry, int &distance, int &i)
+    {
+        while (map[rx + dx[i]][ry + dy[i]] != '#' && map[rx][ry] != 'O')
+        {
+            rx += dx[i];
+            ry += dy[i];
+            distance += 1;
+        }
+    }
 
-        vector<int> now;
+    void BFS(int Rx, int Ry, int Bx, int By)
+    {
+        queue<step> q;
+        q.push({Rx, Ry, Bx, By, 0});
+        visit[Rx][Ry][Rx][Ry] = true;
+        while (!q.empty())
+        {
+            int rx = q.front().Rx;
+            int ry = q.front().Ry;
+            int bx = q.front().Bx;
+            int by = q.front().By;
+            int count = q.front().Count;
+            q.pop();
 
-        while (!opens.empty()){
-            now = opens.front();
-            opens.erase(opens.begin());
+            if (count >= 10)
+                break;
 
-            if (now[0] == Goal[0] && now[1] == Goal[1]){
-                cout << visited[now[0]][now[1]] << endl;
-                return;
-            }
-            else if ( now[0] - Goal[0] == 0 ){
-                // RED와 BLUE가 같은 row에 있다면, now[0] - now[2] == 0
-                if(delta_d(now[4]) == 1){ 
-                    if((now[0] - now[2] == 0) && ( sign(now[3]- Goal[1]) == delta_odd(now[4]) )  && !isThereObstacle(now[2], now[3], Goal[0], Goal[1], now[4])){
-                        cout << -1 << endl;
-                        return;
-                    }
-                    else if (!isThereObstacle(now[0], now[1], Goal[0], Goal[1], now[4])){ // Goal을 지나쳐 이동했음
-                        cout << visited[now[0]][now[1]] << endl;
-                        return;
-                    }
-                    
-                }
-            }
-            else if ( now[1] - Goal[1] == 0 ){
-                // RED와 BLUE가 같은 col에 있다면, now[1] - now[3] == 0
-                if ( delta_d(now[4]) == -1){
-                    if((now[1] - now[3] == 0) && ( sign(now[2]- Goal[0]) == delta_odd(now[4]) ) && !isThereObstacle(now[2], now[3], Goal[0], Goal[1], now[4])){
-                        cout << -1 << endl;
-                        return;
-                    }
-                    else if (!isThereObstacle(now[0], now[1], Goal[0], Goal[1], now[4])){ // Goal을 지나쳐 이동했음
-                        cout << visited[now[0]][now[1]] << endl;
-                        return;                    
-                    }
-                }
-            }
-            
-            if (visited[now[0]][now[1]] > 10){
-                cout << -1 << endl;
-                return;
-            }
+            for (int i = 0; i < 4; ++i)
+            {
+                int nrx = rx, nry = ry, nbx = bx, nby = by;
+                int rc = 0, bc = 0, ncount = count + 1;
 
-            int delta_idx = 0;
-            for(auto d : delta){
-                int next_r_RED=now[0], next_c_RED=now[1], next_r_BLUE=now[2], next_c_BLUE=now[3];
+                move(nrx, nry, rc, i);
+                move(nbx, nby, bc, i);
 
-                while(board[next_r_RED][next_c_RED] != '#' && board[next_r_RED][next_c_RED] != 'O'){
-                    next_r_RED += d[0];
-                    next_c_RED += d[1];
-                    next_r_BLUE += d[0];
-                    next_c_BLUE += d[1];
-                
-                    if (next_r_BLUE < 0 || next_c_BLUE < 0 || next_r_BLUE >= H || next_c_BLUE >= W || board[next_r_BLUE][next_c_BLUE] == '#'){
-                        next_r_BLUE -= d[0];
-                        next_c_BLUE -= d[1];
-                    }
-
-                    if (next_r_RED == next_r_BLUE && next_c_RED == next_c_BLUE){
-                        break; // 빨강이 파랑의 후행
-                    }
-
-                }
-                if (board[next_r_RED][next_c_RED] =='O'){
-                    next_r_RED += d[0];
-                    next_c_RED += d[1];
+                if (map[nbx][nby] == 'O')
+                    continue;
+                if (map[nrx][nry] == 'O')
+                {
+                    cout << ncount << endl;
+                    return;
                 }
 
-                next_r_RED -= d[0];
-                next_c_RED -= d[1];
-
-
-                if (next_r_RED == next_r_BLUE && next_c_RED == next_c_BLUE){
-                    // 파랑이 빨강의 후행
-                    next_r_BLUE -=d[0];
-                    next_c_BLUE -=d[1];
+                if (nrx == nbx && nry == nby)
+                {
+                    if (rc > bc)
+                        nrx -= dx[i], nry -= dy[i];
+                    else
+                        nbx -= dx[i], nby -= dy[i];
                 }
 
-                if(next_r_RED >= 0 && next_c_RED >= 0 && next_r_RED < H && next_c_RED < W){
-                    if (visited[next_r_RED][next_c_RED] == -1 && board[next_r_RED][next_c_RED] != '#'){
-                        opens.push_back({next_r_RED, next_c_RED, next_r_BLUE, next_c_BLUE, delta_idx});
-                        visited[next_r_RED][next_c_RED]=visited[now[0]][now[1]]+1;
-                    }
-                }
-
-                delta_idx += 1;
+                if (visit[nrx][nry][nbx][nby])
+                    continue;
+                visit[nrx][nry][nbx][nby] = true;
+                q.push({nrx, nry, nbx, nby, ncount});
             }
         }
         cout << -1 << endl;
-        return;
     }
-
-
-    bool isThereObstacle(int start_r, int start_c, int goal_r, int goal_c, int delta_idx){
-        bool ret = false;
-        if (delta_idx <= 1){
-            if (delta_idx%2 == 0){
-                if (start_r < goal_r){
-                    for(int i = start_r; i <= goal_r; ++i)
-                        if (board[i][start_c] == '#'){
-                            ret = true;
-                            break;
-                        }
-                }
-                else
-                    ret = true;
-            }
-            else{
-                if (start_r > goal_r){
-                    for(int i = start_r; i >= goal_r; --i)
-                        if(board[i][start_c] == '#'){
-                            ret = true;
-                            break;
-                        }
-                }
-                else
-                    ret = true;
-            }
-        }
-        else{
-            if (delta_idx%2 == 0){
-                if (start_c < goal_c){
-                    for(int i = start_c; i <= goal_c; ++i)
-                        if (board[start_r][i] == '#'){
-                            ret = true;
-                            break;
-                        } 
-                }
-                else
-                    ret = true;
-            }
-            else{
-                if (start_c > goal_c){
-                    for(int i = start_c; i >= goal_c; --i)
-                        if(board[start_r][i] == '#'){
-                            ret = true;
-                            break;
-                        }
-                }
-                else
-                    ret = true;
-            }
-        }
-        return ret;
-    }
-
-    void monitor(){
-        for(auto v : visited){
-            for(auto vv : v){
-                cout << setw(2) << vv << " ";
-            }
-            cout << endl;
-        }
-    }
-
 
 private:
     int H, W;
-    int ans = 0;
-    vector<int> Red, Blue, Goal;
-    vector<vector<char>> board;
-    vector<vector<int>> visited;
-    vector<vector<int>> opens;
-
-    vector<vector<int>> delta = {{-1,0},{1,0}, {0,-1}, {0,1}};
+    char map[11][11];
+    bool visit[11][11][11][11];
+    int N, M;
+    int dx[4] = {1, -1, 0, 0};
+    int dy[4] = {0, 0, 1, -1};
 };
 
 int main()
 {
-
     int H, W;
     cin >> H >> W;
-    solver_13460 solver(H,W);
-    solver.dfs();
-    //solver.monitor();
-
+    solver_13460 solver(H, W);
     return 0;
 }
