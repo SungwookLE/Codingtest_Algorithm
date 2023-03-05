@@ -3,12 +3,16 @@
  * @brief 삼성SW 역량테스트 문제: #13460
  * @brief 1차시도: 한 2시간 푼거같은데.. 반례가 많이 보이는... 알고리즘을 이런형태로 가져가면 안되는건가..
  * @brief 2차시도: 흠.... ..
+ * @brief 3차시도: BFS로 풀려고 정성을 들여... 도전을 해보았는데 계속되서 새로운 반례가 보이는구나... ㅎㅎㅎ -> 정답 검색해보겠읍니다..
  * @brief TC: https://www.acmicpc.net/board/view/90094
  */
 
 #include <iostream>
 #include <vector>
 #include<iomanip>
+#define sign(x) (x>=0? 1:-1)
+#define delta_d(x) (x>1? 1:-1)
+#define delta_odd(x) ((x%1==1)? 1:-1)
 
 using namespace std;
 
@@ -50,8 +54,8 @@ public:
             }
             else if ( now[0] - Goal[0] == 0 ){
                 // RED와 BLUE가 같은 row에 있다면, now[0] - now[2] == 0
-                if(now[4] > 1){ 
-                    if((now[0] - now[2] == 0) && !isThereObstacle(now[2], now[3], Goal[0], Goal[1], now[4])){
+                if(delta_d(now[4]) == 1){ 
+                    if((now[0] - now[2] == 0) && ( sign(now[3]- Goal[1]) == delta_odd(now[4]) )  && !isThereObstacle(now[2], now[3], Goal[0], Goal[1], now[4])){
                         cout << -1 << endl;
                         return;
                     }
@@ -64,13 +68,12 @@ public:
             }
             else if ( now[1] - Goal[1] == 0 ){
                 // RED와 BLUE가 같은 col에 있다면, now[1] - now[3] == 0
-                if (now[4] == 0 || now[4] == 1){
-                    if((now[1] - now[3] == 0) && !isThereObstacle(now[2], now[3], Goal[0], Goal[1], now[4])){
+                if ( delta_d(now[4]) == -1){
+                    if((now[1] - now[3] == 0) && ( sign(now[2]- Goal[0]) == delta_odd(now[4]) ) && !isThereObstacle(now[2], now[3], Goal[0], Goal[1], now[4])){
                         cout << -1 << endl;
                         return;
                     }
                     else if (!isThereObstacle(now[0], now[1], Goal[0], Goal[1], now[4])){ // Goal을 지나쳐 이동했음
-                        cout << "QQQ"<< endl;
                         cout << visited[now[0]][now[1]] << endl;
                         return;                    
                     }
@@ -86,7 +89,7 @@ public:
             for(auto d : delta){
                 int next_r_RED=now[0], next_c_RED=now[1], next_r_BLUE=now[2], next_c_BLUE=now[3];
 
-                while(board[next_r_RED][next_c_RED] != '#'){
+                while(board[next_r_RED][next_c_RED] != '#' && board[next_r_RED][next_c_RED] != 'O'){
                     next_r_RED += d[0];
                     next_c_RED += d[1];
                     next_r_BLUE += d[0];
@@ -102,8 +105,14 @@ public:
                     }
 
                 }
+                if (board[next_r_RED][next_c_RED] =='O'){
+                    next_r_RED += d[0];
+                    next_c_RED += d[1];
+                }
+
                 next_r_RED -= d[0];
                 next_c_RED -= d[1];
+
 
                 if (next_r_RED == next_r_BLUE && next_c_RED == next_c_BLUE){
                     // 파랑이 빨강의 후행
@@ -207,7 +216,7 @@ int main()
     cin >> H >> W;
     solver_13460 solver(H,W);
     solver.dfs();
-    solver.monitor();
+    //solver.monitor();
 
     return 0;
 }
