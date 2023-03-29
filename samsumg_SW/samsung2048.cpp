@@ -1,5 +1,6 @@
 /**
  * @brief #2048 1차 시도 4% 까지 가고 성공,, 음 디버깅해보면 승산있나..?
+ * @brief 오 웬일이래 2차 시도 성공 ㅎㅎ, 이 문제는 약간 세부 구현 문제에 가깝다. 특정 알고리즘을 쓰는 문제라기 보다는
  * @date 2023-03-28
  */
 
@@ -51,7 +52,7 @@ public:
                 bool isPang = false;
                 for (int i = 0; i < N - 1; ++i)
                 {
-                    if (isPang == false)
+                    // if (isPang == false)
                     {
                         if (nowBoard[i][j] == nowBoard[i + 1][j])
                         {
@@ -104,7 +105,7 @@ public:
                 bool isPang = false;
                 for (int i = N - 1; i > 0; --i)
                 {
-                    if (isPang == false)
+                    // if (isPang == false)
                     {
                         if (nowBoard[i][j] == nowBoard[i - 1][j])
                         {
@@ -155,7 +156,7 @@ public:
                 bool isPang = false;
                 for (int j = 0; j < N - 1; ++j)
                 {
-                    if (isPang == false)
+                    // if (isPang == false)
                     {
                         if (nowBoard[i][j] == nowBoard[i][j + 1])
                         {
@@ -207,7 +208,7 @@ public:
                 bool isPang = false;
                 for (int j = N - 1; j > 0; --j)
                 {
-                    if (isPang == false)
+                    // if (isPang == false)
                     {
                         if (nowBoard[i][j] == nowBoard[i][j - 1])
                         {
@@ -258,13 +259,14 @@ public:
             if (temp > ans){
                 ans = temp;
             }
+
             return;
         }
 
 
         for(auto d : delta){
-            nowBoard = move(nowBoard, d);
-            solve(depth+1, nowBoard);
+            auto bb = move(nowBoard, d);
+            solve(depth+1, bb);
         }
     }
 
@@ -282,21 +284,30 @@ public:
     int ans = 0;
     vector<vector<int>> board;
 
+    vector<vector<int>> delta = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
 private:
-    vector<vector<int>> delta = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-    unordered_map<char, int> delta_map = {{'^', 0}, {'v', 1}, {'<', 2}, {'>', 3}};
     int N;
 };
+
+unordered_map<char, int> delta_map = {{'^', 0}, {'v', 1}, {'<', 2}, {'>', 3}};
 
 int main()
 {
     int N;
     cin >> N;
-
     solver_2048 solver(N);
     solver.solve(0, solver.board);
     cout << solver.ans << endl;
+    /*
+    auto bb = solver.board;
+    while(1){
+        char T;
+        cin >> T;
+        bb = solver.move(bb, solver.delta[delta_map[T]]);
+        solver.monitoring(bb);
+
+    */
 
     
     return 0;
